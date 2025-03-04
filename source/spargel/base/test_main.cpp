@@ -1,6 +1,6 @@
 #include <spargel/base/test.h>
 
 int main() {
-    spargel::base::TestManager::instance()->runAll();
+    spargel::base::TestManager::getInstance()->runAll();
     return 0;
 }

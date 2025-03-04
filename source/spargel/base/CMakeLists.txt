@@ -76,8 +76,16 @@ spargel_add_executable(
 
 spargel_add_executable(
     NAME array_storage_test
-    PRIVATE array_storage_test.cpp
-    DEPS base
+    PRIVATE
+        array_storage_test.cpp
+    DEPS
+        base
+        test_main
+)
+
+add_test(
+    NAME array_storage_test
+    COMMAND array_storage_test
 )
 
 spargel_add_executable(
@@ -88,8 +96,16 @@ spargel_add_executable(
 
 spargel_add_executable(
     NAME hash_test
-    PRIVATE hash_test.cpp
-    DEPS base
+    PRIVATE
+        hash_test.cpp
+    DEPS
+        base
+        test_main
+)
+
+add_test(
+    NAME hash_test
+    COMMAND hash_test
 )
 
 spargel_add_executable(
@@ -136,8 +152,16 @@ spargel_add_executable(
 
 spargel_add_executable(
     NAME test_demo
-    PRIVATE test_demo.cpp
-    DEPS test_main base
+    PRIVATE
+        test_demo.cpp
+    DEPS
+        base
+        test_main
+)
+
+add_test(
+    NAME test_test
+    COMMAND test_demo
 )
 
 spargel_add_executable(
@@ -146,10 +170,3 @@ spargel_add_executable(
     DEPS base
 )
 
-# OTHER
-
-spargel_add_executable(
-    NAME vector_bench
-    PRIVATE vector_bench.cpp
-    DEPS base
-)

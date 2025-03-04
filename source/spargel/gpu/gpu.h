@@ -71,12 +71,12 @@ namespace spargel::gpu {
     template <typename T, typename... Args>
     ObjectPtr<T> make_object(Args&&... args) {
         return ObjectPtr<T>(
-            base::default_allocator()->alloc_object<T>(base::forward<Args>(args)...));
+            base::default_allocator()->allocObject<T>(base::forward<Args>(args)...));
     }
 
     template <typename T>
     void destroy_object(ObjectPtr<T> ptr) {
-        base::default_allocator()->free_object(ptr.get());
+        base::default_allocator()->freeObject(ptr.get());
     }
 
     // Enums

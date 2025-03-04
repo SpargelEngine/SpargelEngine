@@ -5,7 +5,7 @@
 
 namespace spargel::base {
 
-    TestManager* TestManager::instance() {
+    TestManager* TestManager::getInstance() {
         static TestManager manager;
         return &manager;
     }

@@ -1,13 +1,11 @@
+#include <spargel/base/check.h>
 #include <spargel/base/hash.h>
 #include <spargel/base/logging.h>
 #include <spargel/base/platform.h>
 #include <spargel/base/string.h>
+#include <spargel/base/test.h>
 
 using namespace spargel;
-
-constexpr u8 data[] = {0, 1, 2, 3, 4, 5};
-// constexpr u64 result =
-//     base::__wyhash::wyhash(data, sizeof(data), base::__wyhash::default_seed);
 
 struct Foo {
     u8 x;
@@ -21,22 +19,18 @@ void tag_invoke(base::tag<base::hash>, base::HashRun& run, Foo const& f) {
     run.combine(f.s);
 }
 
-int main() {
-    auto r = base::HashRun();
-    base::hash(r, base::get_executable_path());
-    spargel_log_info("%llu", r.result());
-    spargel_log_info("%llu", base::hash(base::get_executable_path()));
-    // spargel_log_info("%llu", result);
+TEST(HashIsPure) {
+    spargel_check(base::hash(1) == base::hash(1));
+    // TODO: hash float/double.
+    // spargel_check(base::hash(1.2) == base::hash(1.2));
+    spargel_check(base::hash(base::string("hello")) == base::hash(base::string("hello")));
+    spargel_check(base::hash(Foo(1, 2, base::string("xyz"))) == base::hash(Foo(1, 2, base::string("xyz"))));
+}
 
-    Foo f;
-    f.x = 1;
-    f.y = 2;
-    f.s = base::string("hello");
-
-    spargel_log_info("%llu", base::hash(f));
-
-    f.s = base::string("world");
-    spargel_log_info("%llu", base::hash(f));
-
-    return 0;
+TEST(HashIsSparse) {
+    spargel_check(base::hash(1) != base::hash(2));
+    // TODO: hash float/double.
+    // spargel_check(base::hash(1.2) != base::hash(2.1));
+    spargel_check(base::hash(base::string("hello")) != base::hash(base::string("bonjour")));
+    spargel_check(base::hash(Foo(1, 2, base::string("xyz"))) != base::hash(Foo(3, 5, base::string("def"))));
 }

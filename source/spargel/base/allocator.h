@@ -14,7 +14,8 @@
 
 namespace spargel::base {
 
-    struct Allocator {
+    class Allocator {
+    public:
         virtual ~Allocator() = default;
 
         // requires: size > 0
@@ -25,14 +26,14 @@ namespace spargel::base {
         virtual void free(void* ptr, usize size) = 0;
 
         template <typename T, typename... Args>
-        T* alloc_object(Args&&... args) {
+        T* allocObject(Args&&... args) {
             T* ptr = static_cast<T*>(allocate(sizeof(T)));
             construct_at<T>(ptr, forward<Args>(args)...);
             return ptr;
         }
 
         template <typename T>
-        void free_object(T* ptr) {
+        void freeObject(T* ptr) {
             ptr->~T();
             free(ptr, sizeof(T));
         }
@@ -40,8 +41,9 @@ namespace spargel::base {
 
     Allocator* default_allocator();
 
-    struct libc_allocator final : Allocator {
-        static libc_allocator* instance();
+    class LibCAllocator final : public Allocator {
+    public:
+        static LibCAllocator* getInstance();
 
         void* allocate(usize size) override;
         void* resize(void* ptr, usize old_size, usize new_size) override;

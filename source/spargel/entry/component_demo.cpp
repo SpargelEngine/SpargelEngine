@@ -25,5 +25,5 @@ private:
 };
 
 extern "C" DEMO_EXPORT entry::component* _spargel_make_component(entry::launch_data* l) {
-    return base::default_allocator()->alloc_object<demo_component>(l);
+    return base::default_allocator()->allocObject<demo_component>(l);
 }

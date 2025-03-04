@@ -34,7 +34,7 @@ namespace spargel::base {
 
             ~unique_ptr() {
                 if (_ptr != nullptr) {
-                    default_allocator()->free_object(_ptr);
+                    default_allocator()->freeObject(_ptr);
                 }
             }
 
@@ -63,7 +63,7 @@ namespace spargel::base {
 
     template <typename T, typename... Args>
     unique_ptr<T> make_unique(Args&&... args) {
-        return unique_ptr<T>(default_allocator()->alloc_object<T>(forward<Args>(args)...));
+        return unique_ptr<T>(default_allocator()->allocObject<T>(forward<Args>(args)...));
     }
 
 }  // namespace spargel::base

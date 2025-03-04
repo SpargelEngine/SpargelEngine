@@ -26,26 +26,26 @@ void* operator new(usize size, usize align, spargel::base::Allocator* alloc) noe
 
 namespace spargel::base {
 
-    Allocator* default_allocator() { return libc_allocator::instance(); }
+    Allocator* default_allocator() { return LibCAllocator::getInstance(); }
 
-    libc_allocator* libc_allocator::instance() {
-        static libc_allocator inst;
+    LibCAllocator* LibCAllocator::getInstance() {
+        static LibCAllocator inst;
         return &inst;
     }
 
-    void* libc_allocator::allocate(usize size) {
+    void* LibCAllocator::allocate(usize size) {
         spargel_assert(size > 0);
         return ::malloc(size);
     }
 
-    void* libc_allocator::resize(void* ptr, usize old_size, usize new_size) {
+    void* LibCAllocator::resize(void* ptr, usize old_size, usize new_size) {
         spargel_assert(ptr != nullptr);
         spargel_assert(old_size > 0);
         spargel_assert(new_size > 0);
         return ::realloc(ptr, new_size);
     }
 
-    void libc_allocator::free(void* ptr, usize size) {
+    void LibCAllocator::free(void* ptr, usize size) {
         spargel_assert(ptr != nullptr);
         spargel_assert(size > 0);
         ::free(ptr);
