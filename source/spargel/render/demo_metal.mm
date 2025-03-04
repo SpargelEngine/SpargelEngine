@@ -12,6 +12,9 @@
 #include <spargel/ui/ui_mac.h>
 #include <spargel/ui/window.h>
 
+//
+#include <spargel/render/shader/metal_shader.generated.h>
+
 // libc
 #include <stdio.h>
 
@@ -501,14 +504,15 @@ private:
         }
 
         {
-            auto blob = _resource->open(resource::ResourceId("shader.metallib"));
-            if (!blob.hasValue()) {
-                spargel_log_error("cannot load shader");
-                spargel_panic_here();
-            }
-            auto blob_span = blob.value()->getSpan();
+            // auto blob = _resource->open(resource::ResourceId("shader.metallib"));
+            // if (!blob.hasValue()) {
+            //     spargel_log_error("cannot load shader");
+            //     spargel_panic_here();
+            // }
+            // auto blob_span = blob.value()->getSpan();
             auto library_data =
-                dispatch_data_create(blob_span.data(), blob_span.count(), dispatch_get_main_queue(),
+                // dispatch_data_create(blob_span.data(), blob_span.count(), dispatch_get_main_queue(),
+                dispatch_data_create(spargel_render_metal_shader, sizeof(spargel_render_metal_shader), dispatch_get_main_queue(),
                                      DISPATCH_DATA_DESTRUCTOR_DEFAULT);
 
             _library = [_device newLibraryWithData:library_data error:&error];

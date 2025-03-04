@@ -1,4 +1,3 @@
-
 if (SPARGEL_IS_MACOS)
     spargel_add_executable(
         NAME demo_metal
@@ -9,12 +8,12 @@ if (SPARGEL_IS_MACOS)
             resource
             ui
     )
-    spargel_application_add_resources(
-        TARGET demo_metal
-        SRC ${CMAKE_CURRENT_SOURCE_DIR}/demo_assets
-        DST
-        DEPS
-    )
+    # spargel_application_add_resources(
+    #     TARGET demo_metal
+    #     SRC ${CMAKE_CURRENT_SOURCE_DIR}/demo_assets
+    #     DST
+    #     DEPS
+    # )
 
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shader/shader.ir
@@ -29,14 +28,27 @@ if (SPARGEL_IS_MACOS)
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/shader/shader.ir
     )
     add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/resources/shader.metallib
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shader/metal_shader.generated.h
         COMMAND
-            cp ${CMAKE_CURRENT_BINARY_DIR}/shader/shader.metallib ${CMAKE_CURRENT_BINARY_DIR}/resources/shader.metallib
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/shader/shader.metallib
+            python3 ${CMAKE_CURRENT_SOURCE_DIR}/gen.py
+                --data ${CMAKE_CURRENT_BINARY_DIR}/shader/shader.metallib
+                --output-dir ${CMAKE_CURRENT_BINARY_DIR}/shader/
+                --file-name metal_shader
+                --var-name spargel_render_metal_shader
+        DEPENDS
+            ${CMAKE_CURRENT_BINARY_DIR}/shader/shader.metallib
+            ${CMAKE_CURRENT_SOURCE_DIR}/gen.py
     )
+    # add_custom_command(
+    #     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/resources/shader.metallib
+    #     COMMAND
+    #         cp ${CMAKE_CURRENT_BINARY_DIR}/shader/shader.metallib ${CMAKE_CURRENT_BINARY_DIR}/resources/shader.metallib
+    #     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/shader/shader.metallib
+    # )
     add_custom_target(demo_render_metal_shaders
         DEPENDS
-            ${CMAKE_CURRENT_BINARY_DIR}/resources/shader.metallib
+            # ${CMAKE_CURRENT_BINARY_DIR}/shader/shader.metallib
+            ${CMAKE_CURRENT_BINARY_DIR}/shader/metal_shader.generated.h
     )
     add_dependencies(demo_metal demo_render_metal_shaders)
 endif ()
