@@ -1,6 +1,7 @@
-#include <spargel/base/assert.h>
+#include <spargel/base/check.h>
 #include <spargel/base/either.h>
 #include <spargel/base/logging.h>
+#include <spargel/base/test.h>
 #include <spargel/base/unique_ptr.h>
 
 using namespace spargel;
@@ -19,7 +20,7 @@ struct L2 : L {};
 
 struct R2 : R {};
 
-void test_construct_copy_move() {
+TEST(Either_Copy_Move_Constructor) {
     base::Either<L, R> either1(base::makeLeft<L, R>());
     base::Either<L, R> either2(either1);
     either1 = base::move(either2);
@@ -34,22 +35,14 @@ void test_construct_copy_move() {
     base::Either<base::unique_ptr<L>, base::unique_ptr<R>> either6 = base::move(either4);
 }
 
-void test_function() {
+TEST(Either_Access) {
     auto either1 = base::makeLeft<L, R>(123);
-    spargel_assert(either1.isLeft());
-    spargel_assert(!either1.isRight());
-    spargel_assert(either1.left().x == 123);
+    spargel_check(either1.isLeft());
+    spargel_check(!either1.isRight());
+    spargel_check(either1.left().x == 123);
 
     auto either2 = base::makeRight<L, R>(0.123f);
-    spargel_assert(!either2.isLeft());
-    spargel_assert(either2.isRight());
-    spargel_assert(either2.right().y == 0.123f);
-}
-
-int main() {
-    test_construct_copy_move();
-
-    test_function();
-
-    return 0;
+    spargel_check(!either2.isLeft());
+    spargel_check(either2.isRight());
+    spargel_check(either2.right().y == 0.123f);
 }

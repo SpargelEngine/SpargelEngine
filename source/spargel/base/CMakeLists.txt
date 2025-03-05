@@ -91,7 +91,13 @@ add_test(
 spargel_add_executable(
     NAME either_test
     PRIVATE either_test.cpp
-    DEPS base
+    DEPS
+        base
+        test_main
+)
+add_test(
+    NAME either_test
+    COMMAND either_test
 )
 
 spargel_add_executable(
@@ -111,44 +117,89 @@ add_test(
 spargel_add_executable(
     NAME hash_map_test
     PRIVATE hash_map_test.cpp
-    DEPS base
+    DEPS
+        base
+        test_main
+)
+add_test(
+    NAME hash_map_test
+    COMMAND hash_map_test
 )
 
 spargel_add_executable(
     NAME inline_array_test
     PRIVATE inline_array_test.cpp
-    DEPS base
+    DEPS
+        base
+        test_main
 )
+add_test(
+    NAME inline_array_test
+    COMMAND inline_array_test
+)
+
 
 spargel_add_executable(
     NAME meta_test
     PRIVATE meta_test.cpp
-    DEPS base
+    DEPS
+        base
+        test_main
+)
+add_test(
+    NAME meta_test
+    COMMAND meta_test
 )
 
 spargel_add_executable(
     NAME optional_test
     PRIVATE optional_test.cpp
-    DEPS base
+    DEPS
+        base
+        test_main
+)
+add_test(
+    NAME optional_test
+    COMMAND optional_test
 )
 
 spargel_add_executable(
     NAME string_test
     PRIVATE string_test.cpp
-    DEPS base
+    DEPS
+        base
+        test_main
+)
+add_test(
+    NAME string_test
+    COMMAND string_test
 )
 
 spargel_add_executable(
     NAME sum_type_test
     PRIVATE sum_type_test.cpp
-    DEPS base
+    DEPS
+        base
+        test_main
 )
+add_test(
+    NAME sum_type_test
+    COMMAND sum_type_test
+)
+
 
 spargel_add_executable(
     NAME tagged_union_test
     PRIVATE tagged_union_test.cpp
-    DEPS base
+    DEPS
+        base
+        test_main
 )
+add_test(
+    NAME tagged_union_test
+    COMMAND tagged_union_test
+)
+
 
 spargel_add_executable(
     NAME test_demo
@@ -167,6 +218,13 @@ add_test(
 spargel_add_executable(
     NAME vector_test
     PRIVATE vector_test.cpp
-    DEPS base
+    DEPS
+        base
+        test_main
 )
+add_test(
+    NAME vector_test
+    COMMAND vector_test
+)
+
 

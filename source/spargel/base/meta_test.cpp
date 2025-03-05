@@ -1,4 +1,5 @@
 #include <spargel/base/meta.h>
+#include <spargel/base/test.h>
 
 using namespace spargel::base;
 
@@ -38,4 +39,4 @@ static_assert(is_same<decay<int(int)>, int (*)(int)>);
 
 static_assert(!is_same<decay<int>, bool>);
 
-int main() { return 0; }
+TEST(Meta_Stub) {}

@@ -1,6 +1,8 @@
 #include <spargel/base/algorithm.h>
+#include <spargel/base/check.h>
 #include <spargel/base/logging.h>
 #include <spargel/base/sum_type.h>
+#include <spargel/base/test.h>
 
 using namespace spargel;
 
@@ -8,7 +10,7 @@ struct Foo {
     ~Foo() { spargel_log_info("~Foo();"); }
 };
 
-int main() {
+TEST(SumType_Basic) {
     using Type1 = base::SumType<int, double, int, Foo>;
 
     auto x = Type1::make<2>(3);
@@ -39,6 +41,4 @@ int main() {
     auto w2 = w;
 
     auto w3 = base::move(w);
-
-    return 0;
 }

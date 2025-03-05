@@ -1,4 +1,5 @@
 #include <spargel/base/tagged_union.h>
+#include <spargel/base/test.h>
 
 enum class FooTag {
     Bar,
@@ -11,4 +12,5 @@ struct Baz;
 
 using Foo = spargel::base::TaggedUnion<FooTag>;
 
-int main() { return 0; }
+TEST(TaggedUnion_Stub) {
+}
