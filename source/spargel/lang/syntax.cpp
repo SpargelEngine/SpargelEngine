@@ -7,6 +7,17 @@ namespace spargel::lang {
 
         bool isNewline(char c) { return c == '\n' || c == '\r'; }
         bool isWhitespace(char c) { return c == ' ' || c == '\t'; }
+        bool isIdentifierBegin(char c) {
+            return (c >= 'a' && c <= 'z')
+                || (c >= 'A' && c <= 'Z')
+                || c == '_';
+        }
+        bool isIdentifierContinuation(char c) {
+            return (c >= 'a' && c <= 'z')
+                || (c >= 'A' && c <= 'Z')
+                || (c >= '0' && c <= '9')
+                || c == '_';
+        }
 
     }
 
@@ -50,6 +61,17 @@ namespace spargel::lang {
             case '}': { advance(); return base::Left{form_token(TokenKind::right_brace)}; }
             case '@': { advance(); return base::Left{form_token(TokenKind::at)}; }
             case ',': { advance(); return base::Left{form_token(TokenKind::comma)}; }
+            
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+            case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N':
+            case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U':
+            case 'V': case 'W': case 'X': case 'Y': case 'Z':
+            case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g':
+            case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n':
+            case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u':
+            case 'v': case 'w': case 'x': case 'y': case 'z':
+            case '_':
+                return lexIdentifier();
 
             default:
                 break;
@@ -88,6 +110,35 @@ namespace spargel::lang {
             return !isNewline(c);
         });
         return base::Left{Token(TokenKind::line_comment, begin, _cur)};
+    }
+
+    Lexer::LexResult Lexer::lexIdentifier() {
+        spargel_check(isIdentifierBegin(peekByte()));
+
+        char const* begin = _cur;
+        eatWhile([](char c) {
+            return isIdentifierContinuation(c);
+        });
+
+        base::string_view ident(begin, _cur);
+        base::Optional<KeywordKind> keyword;
+
+        if (ident == "import") { keyword = base::makeOptional<KeywordKind>(KeywordKind::import); }
+        if (ident == "define") { keyword = base::makeOptional<KeywordKind>(KeywordKind::define); }
+        
+        return base::Left{Token(TokenKind::identifier, begin, _cur, keyword)};
+    }
+
+    base::Either<ASTDeclaration, ParseError> Parser::parseDeclaration() {
+        return base::Right{ParseError::internal_error};
+    }
+
+    base::Either<ImportDeclaration, ParseError> Parser::parseImportDeclaration() {
+        return base::Right{ParseError::internal_error};
+    }
+
+    base::Either<DefineDeclaration, ParseError> Parser::parseDefineDeclaration() {
+        return base::Right{ParseError::internal_error};
     }
 
 }

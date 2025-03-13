@@ -1,7 +1,9 @@
 #pragma once
 
 #include <spargel/base/either.h>
+#include <spargel/base/optional.h>
 #include <spargel/base/string_view.h>
+#include <spargel/base/tagged_union.h>
 
 namespace spargel::lang {
 
@@ -43,18 +45,28 @@ namespace spargel::lang {
         equal,
     };
 
+    enum class KeywordKind {
+        import,
+        define,
+    };
+
     struct Token {
         TokenKind kind;
         char const* begin;
         char const* end;
+        base::Optional<KeywordKind> maybe_keyword;
 
-        Token(TokenKind k, char const* b, char const* e) : kind{k}, begin{b}, end{e} {
+        Token(TokenKind k, char const* b, char const* e) : Token(k, b, e, base::nullopt) {}
+
+        Token(TokenKind k, char const* b, char const* e, base::Optional<KeywordKind> keyword) : kind{k}, begin{b}, end{e}, maybe_keyword(keyword) {
             spargel_check(b <= e);
         }
 
         usize length() const { return end - begin; }
 
         base::string_view toStringView() const { return base::string_view(begin, end); }
+
+        bool isKeywordLike() const { return maybe_keyword.hasValue(); }
     };
 
     enum class LexError {
@@ -105,6 +117,7 @@ namespace spargel::lang {
         LexResult lexNewline();
         LexResult lexWhitespace();
         LexResult lexLineComment();
+        LexResult lexIdentifier();
         
         // Keep advancing until the condition on the character is false.
         void eatWhile(auto&& f) {
@@ -121,6 +134,63 @@ namespace spargel::lang {
         char const* _begin;
         char const* _end;
         char const* _cur;
+    };
+
+    class SourceRange {
+    public:
+    private:
+        char const* _begin;
+        char const* _end;
+    };
+
+    class ASTNodeBase {
+    public:
+        SourceRange range() const { return _range; }
+
+    private:
+        SourceRange _range;
+    };
+
+    enum class DeclarationKind {
+        // `import Builtin`
+        import,
+        // `def pi = 3.14159`
+        define,
+    };
+
+    class ImportDeclaration : public ASTNodeBase {
+    public:
+    private:
+    };
+
+    class DefineDeclaration : public ASTNodeBase {
+    public:
+    private:
+    };
+
+    using ASTDeclaration = base::TaggedUnion<
+        base::Case<DeclarationKind::import, ImportDeclaration>,
+        base::Case<DeclarationKind::define, DefineDeclaration>>;
+
+    enum class ParseError {
+        internal_error,
+    };
+
+    //==============
+    // class Parser
+    //
+    // Parse into the loseless AST.
+    //
+    class Parser {
+    public:
+        Parser(base::string_view source) : _lexer(source) {}
+
+        base::Either<ASTDeclaration, ParseError> parseDeclaration();
+        base::Either<ImportDeclaration, ParseError> parseImportDeclaration();
+        base::Either<DefineDeclaration, ParseError> parseDefineDeclaration();
+
+    private:
+        Lexer _lexer;
     };
 
 }

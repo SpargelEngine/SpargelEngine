@@ -4,6 +4,7 @@
 
 using spargel::lang::Lexer;
 using spargel::lang::TokenKind;
+using spargel::lang::KeywordKind;
 using spargel::lang::LexError;
 
 TEST(Lexer_Basic) {
@@ -82,4 +83,37 @@ TEST(Lexer_Paren) {
     spargel_check(y.isLeft());
     spargel_check(y.left().kind == TokenKind::right_paren);
     spargel_check(y.left().toStringView() == ")");
+}
+
+TEST(Lexer_Identifer) {
+    Lexer l("hello _world");
+    auto x = l.lex();
+    spargel_check(x.isLeft());
+    spargel_check(x.left().kind == TokenKind::identifier);
+    spargel_check(x.left().toStringView() == "hello");
+    spargel_check(!x.left().isKeywordLike());
+    l.lex();
+    auto y = l.lex();
+    spargel_check(y.isLeft());
+    spargel_check(y.left().kind == TokenKind::identifier);
+    spargel_check(y.left().toStringView() == "_world");
+}
+
+TEST(Lexer_Keyword) {
+    Lexer l("import Builtins\ndefine main() { return }");
+    auto x = l.lex();
+    spargel_check(x.isLeft());
+    spargel_check(x.left().kind == TokenKind::identifier);
+    spargel_check(x.left().toStringView() == "import");
+    spargel_check(x.left().isKeywordLike());
+    spargel_check(x.left().maybe_keyword.hasValue());
+    spargel_check(x.left().maybe_keyword.value() == KeywordKind::import);
+    l.lex(); l.lex(); l.lex();
+    auto y = l.lex();
+    spargel_check(y.isLeft());
+    spargel_check(y.left().kind == TokenKind::identifier);
+    spargel_check(y.left().toStringView() == "define");
+    spargel_check(y.left().isKeywordLike());
+    spargel_check(y.left().maybe_keyword.hasValue());
+    spargel_check(y.left().maybe_keyword.value() == KeywordKind::define);
 }
