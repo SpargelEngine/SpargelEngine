@@ -15,6 +15,10 @@ namespace spargel::lang {
 
         char c = peekByte();
 
+        auto form_token = [start = _cur, this](TokenKind k) {
+            return Token(k, start, _cur);
+        };
+
         switch (c) {
             
             // null byte
@@ -39,6 +43,13 @@ namespace spargel::lang {
                 // TODO
                 break;
             }
+
+            case '(': { advance(); return base::Left{form_token(TokenKind::left_paren)}; }
+            case ')': { advance(); return base::Left{form_token(TokenKind::right_paren)}; }
+            case '{': { advance(); return base::Left{form_token(TokenKind::left_brace)}; }
+            case '}': { advance(); return base::Left{form_token(TokenKind::right_brace)}; }
+            case '@': { advance(); return base::Left{form_token(TokenKind::at)}; }
+            case ',': { advance(); return base::Left{form_token(TokenKind::comma)}; }
 
             default:
                 break;

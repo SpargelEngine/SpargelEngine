@@ -70,3 +70,16 @@ TEST(Lexer_LineComment_EOF) {
     spargel_check(x.left().length() == 6); // " hello"
     spargel_check(x.left().toStringView() == " hello");
 }
+
+TEST(Lexer_Paren) {
+    Lexer l("( )");
+    auto x = l.lex();
+    spargel_check(x.isLeft());
+    spargel_check(x.left().kind == TokenKind::left_paren);
+    spargel_check(x.left().toStringView() == "(");
+    l.lex();
+    auto y = l.lex();
+    spargel_check(y.isLeft());
+    spargel_check(y.left().kind == TokenKind::right_paren);
+    spargel_check(y.left().toStringView() == ")");
+}

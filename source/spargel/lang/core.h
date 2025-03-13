@@ -5,6 +5,7 @@
 namespace spargel::lang::core {
 
     class Argument;
+    class BasicBlock;
     class Function;
     class Instruction;
 
@@ -26,5 +27,16 @@ namespace spargel::lang::core {
 
         base::vector<Instruction> _insts;
     };
+
+    //--------------
+    // Instructions
+    //
+    //  - `alloc_stack` : allocate memory on the stack
+    //  - `load` : read from memory
+    //  - `store` : store to memory
+    //  - `return` : return from a function
+    //  - `branch` : transfer control flow unconditionally
+    //  - `cond_branch` : transfer control flow conditionally
+    //  - `integer_literal`
 
 }
