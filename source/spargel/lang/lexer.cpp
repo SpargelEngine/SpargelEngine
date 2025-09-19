@@ -1,5 +1,7 @@
 #include "spargel/lang/lexer.h"
 
+#include <stdio.h>
+
 namespace spargel::lang {
     namespace {
         bool isWhitespace(char c) { return c == ' ' || c == '\n'; }
@@ -73,7 +75,7 @@ namespace spargel::lang {
             return makeToken(start, TokenKind::unknown);
         }
         }
-        // __builtin_unreachable();
+        // unreachable
     }
     SyntaxToken Cursor::handleWhitespace() {
         auto start = input_;

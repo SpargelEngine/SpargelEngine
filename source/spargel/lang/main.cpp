@@ -6,20 +6,11 @@ namespace spargel::lang {
         void DriverMain() {
             Cursor c{R"(
                 open cpp_interop
-                @cpp.export
-                func main(args: list[string_view]) {
-                    return 0
-                }
+                func main
             )"};
             Parser p{c};
-            p.parse();
-            // while (true) {
-            //     auto tok = c.nextToken();
-            //     tok.dump();
-            //     if (tok.kind == TokenKind::end_of_file) {
-            //         break;
-            //     }
-            // }
+            auto result = p.parse();
+            result.dump();
         }
     }  // namespace
 }  // namespace spargel::lang

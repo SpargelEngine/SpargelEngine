@@ -32,6 +32,12 @@ namespace spargel::base {
 
         void write(StringView s) { write(s.data(), s.length()); }
 
+        void write_n(char c, usize n ) {
+            for (usize i = 0;i<n;i++) {
+                write(c);
+            }
+        }
+
         void flush();
 
     private:
