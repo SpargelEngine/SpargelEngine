@@ -84,44 +84,13 @@ namespace spargel::gpu {
     };
 
     enum class VertexAttributeFormat {
-        uint8,
-        uint8x2,
-        uint8x4,
-        sint8,
-        sint8x2,
-        sint8x4,
-        unorm8,
-        unorm8x2,
-        unorm8x4,
-        snorm8,
-        snorm8x2,
-        snorm8x4,
-        uint16,
-        uint16x2,
-        uint16x4,
-        sint16,
-        sint16x2,
-        sint16x4,
-        unorm16,
-        unorm16x2,
-        unorm16x4,
-        snorm16,
-        snorm16x2,
-        snorm16x4,
-        float16,
-        float16x2,
-        float16x4,
         float32,
         float32x2,
         float32x4,
     };
 
     enum class BlendAction {
-        min,
-        max,
         add,
-        subtract,
-        reverse_subtract,
     };
 
     enum class BlendFactor {
@@ -148,6 +117,10 @@ namespace spargel::gpu {
         always,
     };
 
+    // NOTE:
+    // Resources (except render targets) are read-only on GPU before Shader Model 5.
+    // UAV (unordered access view) is introduced in Shader Model 5 for writing/reading
+    // from GPU threads (in an unordered way).
     enum class BindEntryKind {
         uniform_buffer,
         storage_buffer,
@@ -159,20 +132,29 @@ namespace spargel::gpu {
     // --------
 
     struct BufferUsage {
+        // map and read
         static const BufferUsage map_read;
+        // map and write
         static const BufferUsage map_write;
+        // the source of a copy command
         static const BufferUsage copy_src;
+        // the destination of a copy command
         static const BufferUsage copy_dst;
+        // index buffer
         static const BufferUsage index;
+        // vertex buffer
         static const BufferUsage vertex;
+        // uniform buffer
         static const BufferUsage uniform;
+        // storage buffer
         static const BufferUsage storage;
+        // draw indirect buffer
         static const BufferUsage indirect;
 
         constexpr bool has(BufferUsage usage) const { return (value & usage.value) != 0; }
 
         constexpr BufferUsage operator|(BufferUsage other) const {
-            return BufferUsage(value | other.value);
+            return BufferUsage{value | other.value};
         }
 
         u32 value;
