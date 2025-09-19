@@ -4,40 +4,78 @@
 #include "spargel/base/logging.h"
 
 namespace spargel::lang {
-    SyntaxNode* Parser::parse() {
+    SyntaxNode Parser::parse() {
         handleSourceFile();
-        return nullptr;
+        return builder_.result();
     }
     void Parser::handleSourceFile() {
-        beginNode(SyntaxKind::source_file);
+        builder_.unsafeEmplace(SyntaxKind::source_file);
         while (true) {
+            consumeWhitespace();
             auto& token = currentToken();
             if (token.kind == TokenKind::end_of_file) {
                 break;
             }
-            switch (token.kind) {
-            case TokenKind::kw_open:
-                handleOpenDecl();
-                break;
-            default:
-                spargel_log_error("unknown token");
-                token.dump();
-                advanceCursor();
-                break;
-            }
+            handleSourceFileItem();
+        }
+    }
+    void Parser::handleSourceFileItem() {
+        beginNode(SyntaxKind::source_file_item);
+        auto& token = currentToken();
+        switch (token.kind) {
+        case TokenKind::kw_open:
+            handleOpenDecl();
+            break;
+        case TokenKind::kw_func:
+            handleFuncDecl();
+            break;
+        default:
+            handleUnknown();
+            break;
         }
         endNode();
     }
     void Parser::handleOpenDecl() {
-        spargel_log_info("open ...");
         beginNode(SyntaxKind::open_decl);
         consumeToken(TokenKind::kw_open);
-
+        consumeWhitespace();
+        handleModuleName();
         endNode();
     }
-    void Parser::consumeToken(TokenKind kind) {
-        spargel_check(currentToken().kind == kind);
+    void Parser::handleModuleName() {
+        beginNode(SyntaxKind::module_name);
+        consumeToken(TokenKind::identifier);
+        endNode();
+    }
+    void Parser::handleFuncDecl() {
+        beginNode(SyntaxKind::func_decl);
+        consumeToken(TokenKind::kw_func);
+        consumeWhitespace();
+        consumeToken(TokenKind::identifier);
+        endNode();
+    }
+    void Parser::handleUnknown() {
+        beginNode(SyntaxKind::unknown);
+        consumeToken();
+        endNode();
+    }
+    void Parser::consumeToken() {
         builder_.pushToken(currentToken());
         advanceCursor();
+    }
+    void Parser::consumeToken(TokenKind kind) {
+        if (currentToken().kind == kind) {
+            consumeToken();
+            return;
+        }
+        builder_.pushToken({kind, "", true});
+    }
+    void Parser::consumeWhitespace() {
+        while (true) {
+            if (currentToken().kind != TokenKind::whitespace) {
+                break;
+            }
+            consumeToken(TokenKind::whitespace);
+        }
     }
 }  // namespace spargel::lang

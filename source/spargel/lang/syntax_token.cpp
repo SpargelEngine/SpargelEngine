@@ -7,13 +7,17 @@
 #include <stdio.h>
 
 namespace spargel::lang {
-    void SyntaxToken::dump() const {
+    void SyntaxToken::dump(usize indent) const {
         auto& console = base::Console::instance();
-        console.write("SyntaxToken: ");
+        console.write_n(' ', indent);
+        console.write("[token] ");
         console.write(toStringLiteral(kind));
         console.write(" ");
         if (kind != TokenKind::whitespace) {
             console.write(text);
+        }
+        if (missing) {
+            console.write(" <missing>");
         }
         console.write("\n");
     }

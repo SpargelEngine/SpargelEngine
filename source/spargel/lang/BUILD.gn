@@ -3,6 +3,7 @@ executable("driver") {
         "main.cpp",
         "lexer.cpp",
         "parser.cpp",
+        "syntax_kind.cpp",
         "syntax_node.cpp",
         "syntax_token.cpp",
         "token_kind.cpp",

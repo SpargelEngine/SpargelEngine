@@ -11,7 +11,7 @@ namespace spargel::lang {
             current_token_ = cursor_.nextToken();
         }
 
-        SyntaxNode* parse();
+        SyntaxNode parse();
 
     private:
         SyntaxToken const& currentToken() const { return current_token_; }
@@ -19,6 +19,7 @@ namespace spargel::lang {
 
         // Consume a token of given `kind` and add to the current node. This
         // will panic if the kind of the current token doesn't match.
+        void consumeToken();
         void consumeToken(TokenKind kind);
 
         void consumeWhitespace();
@@ -30,8 +31,12 @@ namespace spargel::lang {
         //   OpenDecl
         //   FuncDecl
         void handleSourceFile();
+        void handleSourceFileItem();
         void handleOpenDecl();
+        void handleModuleName();
         void handleFuncDecl();
+
+        void handleUnknown();
 
         Cursor cursor_;
         SyntaxToken current_token_;
