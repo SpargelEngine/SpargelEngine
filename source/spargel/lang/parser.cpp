@@ -52,6 +52,28 @@ namespace spargel::lang {
         consumeToken(TokenKind::kw_func);
         consumeWhitespace();
         consumeToken(TokenKind::identifier);
+        consumeWhitespace();
+        handleFuncSig();
+        endNode();
+    }
+    void Parser::handleFuncSig() {
+        beginNode(SyntaxKind::func_sig);
+        handleParamList();
+        consumeWhitespace();
+        handleRetClause();
+        // TODO: parameter list and return clause
+        endNode();
+    }
+    void Parser::handleParamList() {
+        beginNode(SyntaxKind::param_list);
+        consumeToken(TokenKind::left_paren);
+        consumeWhitespace();
+        // TODO
+        consumeToken(TokenKind::right_paren);
+        endNode();
+    }
+    void Parser::handleRetClause() {
+        beginNode(SyntaxKind::ret_clause);
         endNode();
     }
     void Parser::handleUnknown() {

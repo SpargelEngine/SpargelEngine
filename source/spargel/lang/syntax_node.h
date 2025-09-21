@@ -26,8 +26,10 @@ namespace spargel::lang {
     class SyntaxChild {
     public:
         explicit SyntaxChild(SyntaxToken token) : value_{base::Left{token}} {}
-        explicit SyntaxChild(SyntaxKind kind) : value_{base::Right{SyntaxNode{kind}}} {}
-        explicit SyntaxChild(SyntaxNode&& node) : value_{base::Right{base::move(node)}} {}
+        explicit SyntaxChild(SyntaxKind kind)
+            : value_{base::Right{SyntaxNode{kind}}} {}
+        explicit SyntaxChild(SyntaxNode&& node)
+            : value_{base::Right{base::move(node)}} {}
 
         bool isToken() const { return value_.isLeft(); }
         bool isNode() const { return value_.isRight(); }

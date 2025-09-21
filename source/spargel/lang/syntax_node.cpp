@@ -21,7 +21,9 @@ namespace spargel::lang {
             asToken().dump(indent);
         }
     }
-    void SyntaxBuilder::pushToken(SyntaxToken token) { current().children_.emplace(token); }
+    void SyntaxBuilder::pushToken(SyntaxToken token) {
+        current().children_.emplace(token);
+    }
     void SyntaxBuilder::beginNode(SyntaxKind kind) { stack_.emplace(kind); }
     void SyntaxBuilder::endNode() {
         spargel_check(stack_.count() >= 2);

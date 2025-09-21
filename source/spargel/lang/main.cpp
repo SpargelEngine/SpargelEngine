@@ -6,7 +6,7 @@ namespace spargel::lang {
         void DriverMain() {
             Cursor c{R"(
                 open cpp_interop
-                func main
+                func main()
             )"};
             Parser p{c};
             auto result = p.parse();
