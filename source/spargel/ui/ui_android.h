@@ -1,7 +1,7 @@
 #pragma once
 
 #include "spargel/base/base.h"
-#include "spargel/base/logging.h"
+#include "spargel/logging/logging.h"
 #include "spargel/ui/ui.h"
 
 // Android

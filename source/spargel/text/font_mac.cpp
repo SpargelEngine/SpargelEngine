@@ -1,8 +1,8 @@
 #include "spargel/text/font_mac.h"
 
 #include "spargel/base/checked_convert.h"
-#include "spargel/base/logging.h"
 #include "spargel/base/string.h"
+#include "spargel/logging/logging.h"
 
 //
 #include <math.h>

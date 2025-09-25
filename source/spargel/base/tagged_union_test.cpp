@@ -2,6 +2,7 @@
 
 #include "spargel/base/check.h"
 #include "spargel/base/test.h"
+#include "spargel/logging/logging.h"
 
 using spargel::base::Case;
 using spargel::base::TaggedUnion;

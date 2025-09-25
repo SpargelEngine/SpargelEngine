@@ -1,6 +1,6 @@
 #include "spargel/ui/ui_xcb.h"
 
-#include "spargel/base/logging.h"
+#include "spargel/logging/logging.h"
 
 // X11/XCB
 #include <xcb/xproto.h>

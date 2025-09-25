@@ -11,6 +11,7 @@ source_set("resource") {
     ]
     deps = [
         "//source/spargel/base",
+        "//source/spargel/logging",
         "//source/spargel/util",
     ]
 }

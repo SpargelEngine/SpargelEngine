@@ -1,9 +1,7 @@
 #include "spargel/base/panic.h"
 
-#include "spargel/base/assert.h"
 #include "spargel/base/backtrace.h"
 #include "spargel/base/compiler.h"
-#include "spargel/base/logging.h"
 
 /* libc */
 #include <stdio.h>
@@ -27,7 +25,5 @@ namespace spargel::base {
 #error unimplemented
 #endif
     }
-
-    // void panic() { panic_at("<unknown>", "<unknown>", "<unknown>", 0); }
 
 }  // namespace spargel::base

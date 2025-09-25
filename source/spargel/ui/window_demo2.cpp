@@ -1,5 +1,5 @@
-#include "spargel/base/logging.h"
 #include "spargel/entry/simple.h"
+#include "spargel/logging/logging.h"
 #include "spargel/ui/window.h"
 
 namespace spargel::entry {

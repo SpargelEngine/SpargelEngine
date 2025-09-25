@@ -1,5 +1,5 @@
 #include "spargel/gpu/metal_context.h"
-#include "spargel/base/logging.h"
+#include "spargel/logging/logging.h"
 
 namespace spargel::gpu {
     base::UniquePtr<GPUContext> makeMetalContext() {

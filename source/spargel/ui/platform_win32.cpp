@@ -2,7 +2,7 @@
 
 #include <Windowsx.h>
 
-#include "spargel/base/logging.h"
+#include "spargel/logging/logging.h"
 #include "spargel/ui/window_win32.h"
 
 namespace spargel::ui {

@@ -1,12 +1,12 @@
 #include "spargel/gpu/gpu_vulkan.h"
 
 #include "spargel/base/assert.h"
-#include "spargel/base/logging.h"
 #include "spargel/base/object.h"
 #include "spargel/base/platform.h"
 #include "spargel/base/types.h"
 #include "spargel/base/vector.h"
 #include "spargel/config.h"
+#include "spargel/logging/logging.h"
 #include "spargel/ui/window.h"
 
 // libc

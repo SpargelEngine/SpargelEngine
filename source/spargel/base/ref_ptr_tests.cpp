@@ -1,6 +1,6 @@
-#include "spargel/base/logging.h"
 #include "spargel/base/ref_ptr.h"
 #include "spargel/base/test.h"
+#include "spargel/logging/logging.h"
 
 namespace spargel::base {
     namespace {

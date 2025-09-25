@@ -1,6 +1,7 @@
 #include "spargel/gpu/gpu_metal.h"
 #include "spargel/base/unique_ptr.h"
 #include "spargel/gpu/metal_shader_manager.h"
+#include "spargel/logging/logging.h"
 
 // metal
 #import <Metal/Metal.h>
@@ -517,7 +518,7 @@ namespace spargel::gpu {
         auto& manager = MetalShaderManager::instance();
         auto result = manager.queryShader(shader_id);
         if (result.is_error()) {
-            spargel_log_error("shader not found");
+            logging::log_info("shader `{}` is not registered", shader_id);
             return nullptr;
         }
         auto [path, meta] = result.value();

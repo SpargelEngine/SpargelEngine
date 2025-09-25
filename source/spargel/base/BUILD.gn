@@ -4,7 +4,6 @@ source_set("base") {
         "console.cpp",
         "deflate.cpp",
         "format.cpp",
-        "logging.cpp",
         "panic.cpp",
         "platform.cpp",
         "string.cpp",
@@ -33,7 +32,6 @@ source_set("base") {
         "inline_array.h",
         "intrinsic.h",
         "limits.h",
-        "logging.h",
         "meta.h",
         "object.h",
         "optional.h",
@@ -109,5 +107,8 @@ executable("base_tests") {
     deps = [
         ":base",
         ":test_main",
+
+        # TODO
+        "//source/spargel/logging",
     ]
 }

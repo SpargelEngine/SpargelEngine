@@ -1,8 +1,8 @@
 #include "spargel/render/ui_renderer.h"
 
 #include "spargel/base/checked_convert.h"
-#include "spargel/base/logging.h"
 #include "spargel/config.h"
+#include "spargel/logging/logging.h"
 #include "spargel/render/constants.h"
 
 namespace spargel::render {

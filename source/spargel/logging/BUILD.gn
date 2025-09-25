@@ -1,0 +1,19 @@
+source_set("logging") {
+    public = [
+        "logging.h",
+    ]
+    sources = [
+        "logging.cpp",
+    ]
+    deps = [
+        "//source/spargel/base",
+    ]
+}
+
+executable("demo_log") {
+    sources = [ "log_demo.cpp" ]
+    deps = [
+        ":logging",
+        "//source/spargel/base",
+    ]
+}

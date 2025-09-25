@@ -1,5 +1,5 @@
-#include "spargel/base/logging.h"
 #include "spargel/base/tag_invoke.h"
+#include "spargel/logging/logging.h"
 
 using namespace spargel;
 

@@ -1,5 +1,5 @@
-#include "spargel/base/logging.h"
 #include "spargel/config.h"
+#include "spargel/logging/logging.h"
 #include "spargel/resource/directory.h"
 #include "spargel/ui/platform.h"
 #include "spargel/ui/window.h"

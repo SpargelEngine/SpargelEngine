@@ -2,9 +2,7 @@
 
 #include "spargel/base/algorithm.h"
 #include "spargel/base/allocator.h"
-#include "spargel/base/attribute.h"
 #include "spargel/base/check.h"
-#include "spargel/base/logging.h"
 #include "spargel/base/meta.h"
 #include "spargel/base/object.h"
 #include "spargel/base/span.h"
@@ -193,8 +191,7 @@ namespace spargel::base {
                 swap(lhs._end, rhs._end);
                 swap(lhs._capacity, rhs._capacity);
                 // } else [[unlikely]] {
-                //   spargel_log_fatal("unimplemented: swapping vectors with
-                //   different allocators"); spargel_panic_here();
+                //     spargel_panic_here();
                 // }
             }
 

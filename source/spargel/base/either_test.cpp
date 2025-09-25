@@ -1,9 +1,9 @@
 #include "spargel/base/either.h"
 
 #include "spargel/base/check.h"
-#include "spargel/base/logging.h"
 #include "spargel/base/test.h"
 #include "spargel/base/unique_ptr.h"
+#include "spargel/logging/logging.h"
 
 using namespace spargel::base;
 

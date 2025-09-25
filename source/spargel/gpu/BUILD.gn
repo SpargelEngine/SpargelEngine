@@ -11,6 +11,7 @@ source_set("gpu") {
     deps = [
         "//source/spargel/base",
         "//source/spargel/codec",
+        "//source/spargel/logging",
     ]
 
     if (is_macos) {

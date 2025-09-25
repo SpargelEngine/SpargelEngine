@@ -1,9 +1,9 @@
 #include "spargel/base/allocator.h"
-#include "spargel/base/logging.h"
 #include "spargel/base/object.h"
 #include "spargel/base/unique_ptr.h"
 #include "spargel/entry/component.h"
 #include "spargel/entry/launch_data.h"
+#include "spargel/logging/logging.h"
 #include "spargel/ui/window.h"
 
 using namespace spargel;

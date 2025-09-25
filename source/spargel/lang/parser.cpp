@@ -1,8 +1,5 @@
 #include "spargel/lang/parser.h"
 
-#include "spargel/base/check.h"
-#include "spargel/base/logging.h"
-
 namespace spargel::lang {
     SyntaxNode Parser::parse() {
         handleSourceFile();

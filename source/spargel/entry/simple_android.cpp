@@ -1,6 +1,6 @@
 #include "spargel/base/base.h"
-#include "spargel/base/logging.h"
 #include "spargel/entry/simple.h"
+#include "spargel/logging/logging.h"
 #include "spargel/resource/android_asset.h"
 #include "spargel/ui/ui_android.h"
 

@@ -2,10 +2,10 @@
 #include "spargel/base/allocator.h"
 #include "spargel/base/check.h"
 #include "spargel/base/inline_array.h"
-#include "spargel/base/logging.h"
 #include "spargel/base/meta.h"
 #include "spargel/base/unique_ptr.h"
 #include "spargel/base/vector.h"
+#include "spargel/logging/logging.h"
 #include "spargel/render/ui_renderer_metal.h"
 
 //

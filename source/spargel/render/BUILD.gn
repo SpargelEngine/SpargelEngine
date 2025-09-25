@@ -13,6 +13,7 @@ source_set("render") {
     deps = [
         "//source/spargel/base",
         "//source/spargel/gpu",
+        "//source/spargel/logging",
         "//source/spargel/resource",
         "//source/spargel/text",
     ]

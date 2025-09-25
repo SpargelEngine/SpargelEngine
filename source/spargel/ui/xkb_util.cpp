@@ -3,7 +3,7 @@
 #include <xkbcommon/xkbcommon-keysyms.h>
 #include <xkbcommon/xkbcommon.h>
 
-#include "spargel/base/logging.h"
+#include "spargel/logging/logging.h"
 
 namespace spargel::ui::xkb {
 

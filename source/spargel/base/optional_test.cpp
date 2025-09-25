@@ -2,10 +2,10 @@
 
 #include "spargel/base/algorithm.h"
 #include "spargel/base/check.h"
-#include "spargel/base/logging.h"
 #include "spargel/base/meta.h"
 #include "spargel/base/test.h"
 #include "spargel/base/unique_ptr.h"
+#include "spargel/logging/logging.h"
 
 namespace spargel::base {
     namespace {

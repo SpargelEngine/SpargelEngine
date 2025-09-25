@@ -1,7 +1,7 @@
 #include <harfbuzz/hb.h>
 
-#include "spargel/base/logging.h"
 #include "spargel/base/string.h"
+#include "spargel/logging/logging.h"
 #include "spargel/math/function.h"
 #include "spargel/resource/directory.h"
 

@@ -20,5 +20,6 @@ executable("demo_task") {
     deps = [
         ":task",
         "//source/spargel/base",
+        "//source/spargel/logging",
     ]
 }

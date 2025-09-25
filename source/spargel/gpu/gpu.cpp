@@ -1,7 +1,7 @@
 #include "spargel/gpu/gpu.h"
 
-#include "spargel/base/logging.h"
 #include "spargel/config.h"
+#include "spargel/logging/logging.h"
 
 #if SPARGEL_ENABLE_METAL
 namespace spargel::gpu {

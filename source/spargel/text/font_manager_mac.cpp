@@ -1,7 +1,7 @@
 #include "spargel/text/font_manager_mac.h"
 
-#include "spargel/base/logging.h"
 #include "spargel/base/unique_ptr.h"
+#include "spargel/logging/logging.h"
 #include "spargel/text/font_mac.h"
 
 namespace spargel::text {

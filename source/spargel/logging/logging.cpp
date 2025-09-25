@@ -1,4 +1,4 @@
-#include "spargel/base/logging.h"
+#include "spargel/logging/logging.h"
 
 #include "spargel/base/assert.h"
 #include "spargel/config.h"
@@ -28,7 +28,7 @@
 #include <windows.h>
 #endif
 
-namespace spargel::base {
+namespace spargel::logging {
 
     static char const* log_names[_LOG_COUNT] = {
         "DEBUG", "INFO", "WARN", "ERROR", "FATAL",
@@ -186,4 +186,4 @@ namespace spargel::base {
 #endif  // SPARGEL_IS_EMSCRIPTEN
     }
 
-}  // namespace spargel::base
+}  // namespace spargel::logging

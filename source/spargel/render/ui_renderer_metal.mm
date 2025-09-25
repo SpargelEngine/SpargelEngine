@@ -2,6 +2,7 @@
 #include "spargel/base/check.h"
 #include "spargel/base/checked_convert.h"
 #include "spargel/base/types.h"
+#include "spargel/logging/logging.h"
 #include "spargel/render/metal_shaders.h"
 #include "spargel/render/ui_scene.h"
 

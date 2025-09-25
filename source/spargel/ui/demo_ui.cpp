@@ -1,6 +1,7 @@
 #include "spargel/base/optional.h"
 #include "spargel/base/unique_ptr.h"
 #include "spargel/gpu/gpu_context.h"
+#include "spargel/logging/logging.h"
 #include "spargel/render/ui_renderer.h"
 #include "spargel/render/ui_scene.h"
 #include "spargel/text/font_manager.h"
