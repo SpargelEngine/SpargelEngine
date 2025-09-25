@@ -15,7 +15,7 @@ using namespace spargel::json;
 namespace {
 
     base::Either<JsonValue, JsonParseError> parseJson(const char* str) {
-        return json::parseJson(str, strlen(str));
+        return JsonParser::parse(str, strlen(str));
     }
 
     TEST(JSON_JsonValue) {

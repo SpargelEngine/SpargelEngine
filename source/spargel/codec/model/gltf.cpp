@@ -192,7 +192,7 @@ namespace spargel::codec::model {
     }  // namespace
 
     base::Either<GlTF, GlTFDecodeError> parseGlTF(const char* text, usize len) {
-        auto json_result = json::parseJson(text, len);
+        auto json_result = json::JsonParser::parse(text, len);
         if (json_result.isRight())
             return base::Right<GlTFDecodeError>(json_result.right().message());
 

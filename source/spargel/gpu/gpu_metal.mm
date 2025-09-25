@@ -518,7 +518,7 @@ namespace spargel::gpu {
         auto& manager = MetalShaderManager::instance();
         auto result = manager.queryShader(shader_id);
         if (result.is_error()) {
-            logging::log_info("shader `{}` is not registered", shader_id);
+            logging::info("shader `{}` is not registered", shader_id);
             return nullptr;
         }
         auto [path, meta] = result.value();

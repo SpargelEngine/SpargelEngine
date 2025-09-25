@@ -83,7 +83,8 @@ int main(int argc, char* argv[]) {
     }
     auto resource = base::move(optional.value());
 
-    auto result = parseJson((char*)resource->mapData(), resource->size());
+    auto result =
+        JsonParser::parse((char*)resource->mapData(), resource->size());
     if (result.isLeft()) {
         if (cmdline.hasSwitch("no-dump")) {
             return 0;

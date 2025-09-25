@@ -195,7 +195,7 @@ namespace spargel::codec {
 
         TEST(JsonCodec_Decode_Array) {
             {
-                auto result_json = parseJson("[123, 456, 789]");
+                auto result_json = JsonParser::parse("[123, 456, 789]");
                 spargel_check(result_json.isLeft());
 
                 auto result =
@@ -210,8 +210,8 @@ namespace spargel::codec {
                 spargel_check(array[2] == 789);
             }
             {
-                auto result_json =
-                    parseJson("[[\"ABC\", \"123\"], [\"XYZ\", \"789\"]]");
+                auto result_json = JsonParser::parse(
+                    "[[\"ABC\", \"123\"], [\"XYZ\", \"789\"]]");
                 spargel_check(result_json.isLeft());
 
                 auto result =
@@ -276,7 +276,7 @@ namespace spargel::codec {
                             "scores": [98, 87.5, 92]
                         }
                     )";
-                auto result_json = parseJson(str);
+                auto result_json = JsonParser::parse(str);
                 spargel_check(result_json.isLeft());
 
                 auto result = studentCodec.decode(
@@ -319,7 +319,7 @@ namespace spargel::codec {
                     "    \"scores\": [99, 97.5]\n"
                     "  }\n"
                     "]";
-                auto result_json = parseJson(str);
+                auto result_json = JsonParser::parse(str);
                 spargel_check(result_json.isLeft());
 
                 auto result =

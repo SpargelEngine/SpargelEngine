@@ -4,7 +4,6 @@
 #include "spargel/base/optional.h"
 #include "spargel/base/string_view.h"
 #include "spargel/base/trace.h"
-#include "spargel/json/cursor.h"
 #include "spargel/json/json_value.h"
 
 // libm
@@ -597,11 +596,31 @@ namespace spargel::json {
         return result;
     }
 
-    Either<JsonValue, JsonParseError> parseJson(const char* str, usize length) {
+    Either<JsonValue, JsonParseError> JsonParser::parse(const char* str,
+                                                        usize length) {
         spargel_trace_scope("parseJson");
 
-        JsonParser parser{Cursor{str, str + length}};
+        JsonParser parser{JsonParser::Cursor{str, str + length}};
         return parser.parseElement();
+    }
+
+    bool JsonParser::Cursor::tryEatChar(char ch) {
+        if (cur + 1 > end) return false;
+        if (peek() != ch) return false;
+        advance();
+        return true;
+    }
+
+    bool JsonParser::Cursor::tryEatString(const char* str) {
+        usize len = (usize)strlen(str);
+        return tryEatBytes((u8*)str, len);
+    }
+
+    bool JsonParser::Cursor::tryEatBytes(const u8* bytes, usize len) {
+        if (cur + len > end) return false;
+        if (memcmp(bytes, cur, len) != 0) return false;
+        cur += len;
+        return true;
     }
 
 }  // namespace spargel::json

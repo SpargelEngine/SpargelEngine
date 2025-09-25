@@ -186,27 +186,27 @@ namespace spargel::base {
 
             void resize(usize n) { _bytes.resize(n); }
 
-            usize getLength() const {
-                usize len = 0;
-                usize i = 0;
-                while (i < length()) {
-                    Byte byte = bitCast<char, Byte>(_bytes[i]);
-                    if ((byte & 0b10000000) == 0) {
-                        i += 1;
-                    } else if ((byte & 0b11100000) == 0b11000000) {
-                        i += 2;
-                    } else if ((byte & 0b11110000) == 0b11100000) {
-                        i += 3;
-                    } else if ((byte & 0b11111000) == 0b11110000) {
-                        i += 4;
-                    } else {
-                        spargel_panic_here();
-                    }
-                    len += 1;
-                }
-                // spargel_assert(i == _bytes.count());
-                return len;
-            }
+            // usize getLength() const {
+            //     usize len = 0;
+            //     usize i = 0;
+            //     while (i < length()) {
+            //         Byte byte = bitCast<char, Byte>(_bytes[i]);
+            //         if ((byte & 0b10000000) == 0) {
+            //             i += 1;
+            //         } else if ((byte & 0b11100000) == 0b11000000) {
+            //             i += 2;
+            //         } else if ((byte & 0b11110000) == 0b11100000) {
+            //             i += 3;
+            //         } else if ((byte & 0b11111000) == 0b11110000) {
+            //             i += 4;
+            //         } else {
+            //             spargel_panic_here();
+            //         }
+            //         len += 1;
+            //     }
+            //     // spargel_assert(i == _bytes.count());
+            //     return len;
+            // }
 
             // Get the unicode scalar containing the `i`-th byte.
             // u32 getScalarAtByte(usize i) {

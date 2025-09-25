@@ -33,6 +33,10 @@ using nullptr_t = decltype(nullptr);
 using f32 = float;
 using f64 = double;
 
+// namespace std {
+//     enum class byte : unsigned char {};
+// }
+
 namespace spargel::base {
 
     // using Byte = std::byte;

@@ -4,7 +4,6 @@ source_set("json") {
         "json_parser.h",
     ]
     sources = [
-        "cursor.cpp",
         "json_parser.cpp",
         "json_value.cpp",
     ]

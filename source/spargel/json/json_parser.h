@@ -4,7 +4,6 @@
 #include "spargel/base/optional.h"
 #include "spargel/base/string.h"
 #include "spargel/base/string_view.h"
-#include "spargel/json/cursor.h"
 #include "spargel/json/json_value.h"
 
 namespace spargel::json {
@@ -18,7 +17,7 @@ namespace spargel::json {
         const base::String& message() { return message_; }
 
         friend JsonParseError operator+(const JsonParseError& error,
-                                        const base::StringView& str) {
+                                        base::StringView str) {
             return JsonParseError((error.message_ + str).view());
         }
 
@@ -37,7 +36,42 @@ namespace spargel::json {
 
     class JsonParser {
     public:
+        struct Cursor {
+            const char* cur;
+            const char* end;
+
+            bool isEnd() const { return cur >= end; }
+
+            char peek() const {
+                if (isEnd()) return 0;
+                return *cur;
+            }
+
+            void advance(int steps = 1) { cur += steps; }
+
+            char consumeChar() {
+                auto ch = peek();
+                advance();
+                return ch;
+            }
+
+            /*
+             * These funtions will move the cursor if succeeds,
+             * otherwise the cursor will not move.
+             */
+            bool tryEatChar(char ch);
+            bool tryEatBytes(const u8* bytes, usize count);
+            bool tryEatString(const char* str);
+        };
+
         Cursor cursor;
+
+        static base::Either<JsonValue, JsonParseError> parse(char const* s,
+                                                             usize l);
+        static base::Either<JsonValue, JsonParseError> parse(
+            base::StringView s) {
+            return parse(s.data(), s.length());
+        }
 
         void eatWhitespaces();
         base::Either<JsonValue, JsonParseError> parseValue();
@@ -58,10 +92,10 @@ namespace spargel::json {
         base::Either<JsonValue, JsonParseError> parseElement();
     };
 
-    base::Either<JsonValue, JsonParseError> parseJson(const char* str,
-                                                      usize length);
-    inline base::Either<JsonValue, JsonParseError> parseJson(
-        base::StringView s) {
-        return parseJson(s.data(), s.length());
-    }
+    // base::Either<JsonValue, JsonParseError> parseJson(const char* str,
+    //                                                   usize length);
+    // inline base::Either<JsonValue, JsonParseError> parseJson(
+    //     base::StringView s) {
+    //     return parseJson(s.data(), s.length());
+    // }
 }  // namespace spargel::json

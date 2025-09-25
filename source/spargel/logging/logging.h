@@ -64,7 +64,7 @@ namespace spargel::logging {
     }  // namespace detail
 
     template <typename... Args>
-    void log_info(detail::LogFormat fmt, Args&&... args) {
+    void info(detail::LogFormat fmt, Args&&... args) {
         base::print("[INFO:{}] ", fmt.location()._file);
         base::print(fmt.format(), base::forward<Args>(args)...);
         base::print("\n");
