@@ -42,8 +42,8 @@ namespace spargel::base {
             }
         }
 
-        span<char*> _args;
-        vector<string_view> _switches;
+        Span<char*> _args;
+        Vector<StringView> _switches;
     };
 
 }  // namespace spargel::base

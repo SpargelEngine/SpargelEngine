@@ -19,14 +19,6 @@
 
 namespace spargel::codec::model {
 
-    using base::HashMap;
-    using base::Optional;
-    using base::vector;
-
-    using math::Matrix4x4f;
-    using math::Vector3f;
-    using math::Vector4f;
-
     using GlTFBoolean = bool;
     using GlTFInteger = i32;
     using GlTFNumber = f64;
@@ -39,13 +31,13 @@ namespace spargel::codec::model {
         // The index of the buffer view. When undefined, the accessor MUST be
         // initialized with zeros; sparse property or extensions MAY override
         // zeros with actual values. (>=0)
-        Optional<GlTFInteger> bufferView;
+        base::Optional<GlTFInteger> bufferView;
 
         // The offset relative to the start of the buffer view in bytes. This
         // MUST be a multiple of the size of the component datatype. This
         // property MUST NOT be defined when bufferView is undefined. (>=0)
         // Default: 0.
-        Optional<GlTFInteger> byteOffset;
+        base::Optional<GlTFInteger> byteOffset;
 
         // The datatype of the accessor’s components. UNSIGNED_INT type MUST NOT
         // be used for any accessor that is not referenced by
@@ -58,7 +50,7 @@ namespace spargel::codec::model {
         // (for unsigned types) or to [-1, 1] (for signed types) when they are
         // accessed. This property MUST NOT be set to true for accessors with
         // FLOAT or UNSIGNED_INT component type. Default: false.
-        Optional<GlTFBoolean> normalized;
+        base::Optional<GlTFBoolean> normalized;
 
         // The number of elements referenced by this accessor, not to be
         // confused with the number of bytes or number of components. (>=1)
@@ -74,21 +66,21 @@ namespace spargel::codec::model {
         // Both min and max arrays have the same length. The length is
         // determined by the value of the type property; it can be 1, 2, 3, 4,
         // 9, or 16.
-        Optional<vector<GlTFNumber>> max;
+        base::Optional<base::Vector<GlTFNumber>> max;
 
         // Minimum value of each component in this accessor. Array elements MUST
         // be treated as having the same data type as accessor’s componentType.
         // Both min and max arrays have the same length. The length is
         // determined by the value of the type property; it can be 1, 2, 3, 4,
         // 9, or 16.
-        Optional<vector<GlTFNumber>> min;
+        base::Optional<base::Vector<GlTFNumber>> min;
 
         // TODO: sparse
 
         // The user-defined name of this object. This is not necessarily unique,
         // e.g., an accessor and a buffer could have the same name, or two
         // accessors could even have the same name.
-        Optional<GlTFString> name;
+        base::Optional<GlTFString> name;
     };
 
     /* TODO
@@ -102,10 +94,10 @@ namespace spargel::codec::model {
     struct GlTFAsset {
         // A copyright message suitable for display to credit the content
         // creator.
-        Optional<GlTFString> copyright;
+        base::Optional<GlTFString> copyright;
 
         // Tool that generated this glTF model. Useful for debugging.
-        Optional<GlTFString> generator;
+        base::Optional<GlTFString> generator;
 
         // The glTF version in the form of <major>.<minor> that this asset
         // targets. Pattern: ^[0-9]+\.[0-9]+$
@@ -114,7 +106,7 @@ namespace spargel::codec::model {
         // The minimum glTF version in the form of <major>.<minor> that this
         // asset targets. This property MUST NOT be greater than the asset
         // version. Pattern: ^[0-9]+\.[0-9]+$
-        Optional<GlTFString> minVersion;
+        base::Optional<GlTFString> minVersion;
     };
 
     /*
@@ -124,7 +116,7 @@ namespace spargel::codec::model {
         // The URI (or IRI) of the buffer. Relative paths are relative to the
         // current glTF asset. Instead of referencing an external file, this
         // field MAY contain a data:-URI. Format: iri-reference.
-        Optional<GlTFString> uri;
+        base::Optional<GlTFString> uri;
 
         // The length of the buffer in bytes. (>= 1)
         GlTFInteger byteLength;
@@ -132,7 +124,7 @@ namespace spargel::codec::model {
         // The user-defined name of this object. This is not necessarily unique,
         // e.g., an accessor and a buffer could have the same name, or two
         // accessors could even have the same name.
-        Optional<GlTFString> name;
+        base::Optional<GlTFString> name;
     };
 
     /*
@@ -144,7 +136,7 @@ namespace spargel::codec::model {
 
         // The offset into the buffer in bytes. (>= 0)
         // Default: 0.
-        Optional<GlTFInteger> byteOffset;
+        base::Optional<GlTFInteger> byteOffset;
 
         // The length of the bufferView in bytes. (>= 1)
         GlTFInteger byteLength;
@@ -152,16 +144,16 @@ namespace spargel::codec::model {
         // The stride, in bytes, between vertex attributes. When this is not
         // defined, data is tightly packed. When two or more accessors use the
         // same buffer view, this field MUST be defined. (>= 4, <= 252)
-        Optional<GlTFInteger> byteStride;
+        base::Optional<GlTFInteger> byteStride;
 
         // The hint representing the intended GPU buffer type to use with this
         // buffer view. Allowed: 34962=ARRAY_BUFFER, 34963=ELEMENT_ARRAY_BUFFER.
-        Optional<GlTFInteger> target;
+        base::Optional<GlTFInteger> target;
 
         // The user-defined name of this object. This is not necessarily unique,
         // e.g., an accessor and a buffer could have the same name, or two
         // accessors could even have the same name.
-        Optional<GlTFString> name;
+        base::Optional<GlTFString> name;
     };
 
     /*
@@ -170,35 +162,35 @@ namespace spargel::codec::model {
     struct GlTFMeshPrimitive;
     struct GlTFMesh {
         // An array of primitives, each defining geometry to be rendered.
-        vector<GlTFMeshPrimitive> primitives;
+        base::Vector<GlTFMeshPrimitive> primitives;
 
         // Array of weights to be applied to the morph targets.
         // The number of array elements MUST match the number of morph targets.
-        Optional<vector<GlTFNumber>> weights;
+        base::Optional<base::Vector<GlTFNumber>> weights;
 
         // The user-defined name of this object. This is not necessarily unique,
         // e.g., an accessor and a buffer could have the same name, or two
         // accessors could even have the same name.
-        Optional<GlTFString> name;
+        base::Optional<GlTFString> name;
     };
 
     struct GlTFMeshPrimitiveAttributes {
         // Unitless XYZ vertex positions
         // VEC3; float
-        Optional<GlTFInteger> position;
+        base::Optional<GlTFInteger> position;
 
         // Normalized XYZ vertex normals
         // VEC3; float
-        Optional<GlTFInteger> normal;
+        base::Optional<GlTFInteger> normal;
 
         // ST texture coordinates
         // VEC2; float, unsigned byte normalized, unsigned short normalized
-        Optional<GlTFInteger> texcoord_0;
+        base::Optional<GlTFInteger> texcoord_0;
 
         // RGB or RGBA vertex color linear multiplier
         // VEC3, VEC4; float, unsigned byte normalized, unsigned short
         // normalized
-        Optional<GlTFInteger> color_0;
+        base::Optional<GlTFInteger> color_0;
     };
 
     /*
@@ -211,16 +203,16 @@ namespace spargel::codec::model {
         GlTFMeshPrimitiveAttributes attributes;
 
         // The index of the accessor that contains the vertex indices. (>=0)
-        Optional<GlTFInteger> indices;
+        base::Optional<GlTFInteger> indices;
 
         // The index of the material to apply to this primitive when rendering.
         // (>=0)
-        Optional<GlTFInteger> material;
+        base::Optional<GlTFInteger> material;
 
         // The topology type of primitives to render.
         // Allowed: 0=POINTS, 1=LINES, 2=LINE_LOOP, 3=LINE_STRIP, 4=TRIANGLES,
         // 5=TRIANGLE_STRIP, 6=TRIANGLE_FAN. Default: 4.
-        Optional<GlTFInteger> mode;
+        base::Optional<GlTFInteger> mode;
     };
 
     /*
@@ -228,45 +220,45 @@ namespace spargel::codec::model {
      */
     struct GlTFNode {
         // The index of the camera referenced by this node. (>=0)
-        Optional<GlTFInteger> camera;
+        base::Optional<GlTFInteger> camera;
 
         // The indices of this node’s children. (unique, >= 0)
-        Optional<vector<GlTFInteger>> children;
+        base::Optional<base::Vector<GlTFInteger>> children;
 
         // The index of the skin referenced by this node. When a skin is
         // referenced by a node within a scene, all joints used by the skin MUST
         // belong to the same scene. When defined, mesh MUST also be defined.
         // (>=0)
-        Optional<GlTFInteger> skin;
+        base::Optional<GlTFInteger> skin;
 
         // A floating-point 4x4 transformation matrix stored in column-major
         // order. Default: [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1].
-        Optional<Matrix4x4f> matrix;
+        base::Optional<math::Matrix4x4f> matrix;
 
         // The index of the mesh in this node. (>= 0)
-        Optional<GlTFInteger> mesh;
+        base::Optional<GlTFInteger> mesh;
 
         // The node’s unit quaternion rotation in the order (x, y, z, w), where
         // w is the scalar. Default:[0,0,0,1].
-        Optional<Vector4f> rotation;
+        base::Optional<math::Vector4f> rotation;
 
         // The node’s non-uniform scale, given as the scaling factors along the
         // x, y, and z axes. Default: [1,1,1].
-        Optional<Vector3f> scale;
+        base::Optional<math::Vector3f> scale;
 
         // The node’s translation along the x, y, and z axes.
         // Default: [0,0,0].
-        Optional<Vector3f> translation;
+        base::Optional<math::Vector3f> translation;
 
         // The weights of the instantiated morph target. The number of array
         // elements MUST match the number of morph targets of the referenced
         // mesh. When defined, mesh MUST also be defined.
-        Optional<vector<GlTFNumber>> weights;
+        base::Optional<base::Vector<GlTFNumber>> weights;
 
         // The user-defined name of this object. This is not necessarily unique,
         // e.g., an accessor and a buffer could have the same name, or two
         // accessors could even have the same name.
-        Optional<GlTFString> name;
+        base::Optional<GlTFString> name;
     };
 
     /*
@@ -274,12 +266,12 @@ namespace spargel::codec::model {
      */
     struct GlTFScene {
         // The indices of each root node. (unique, >= 0)
-        Optional<vector<GlTFInteger>> nodes;
+        base::Optional<base::Vector<GlTFInteger>> nodes;
 
         // The user-defined name of this object. This is not necessarily unique,
         // e.g., an accessor and a buffer could have the same name, or two
         // accessors could even have the same name.
-        Optional<GlTFString> name;
+        base::Optional<GlTFString> name;
     };
 
     /*
@@ -287,31 +279,31 @@ namespace spargel::codec::model {
      */
     struct GlTF {
         // An array of accessors. An accessor is a typed view into a bufferView.
-        Optional<vector<GlTFAccessor>> accessors;
+        base::Optional<base::Vector<GlTFAccessor>> accessors;
 
         // Metadata about the glTF asset.
         GlTFAsset asset;
 
         // An array of buffers. A buffer points to binary geometry, animation,
         // or skins.
-        Optional<vector<GlTFBuffer>> buffers;
+        base::Optional<base::Vector<GlTFBuffer>> buffers;
 
         // An array of bufferViews. A bufferView is a view into a buffer
         // generally representing a subset of the buffer.
-        Optional<vector<GlTFBufferView>> bufferViews;
+        base::Optional<base::Vector<GlTFBufferView>> bufferViews;
 
         // An array of meshes. A mesh is a set of primitives to be rendered.
-        Optional<vector<GlTFMesh>> meshes;
+        base::Optional<base::Vector<GlTFMesh>> meshes;
 
         // An array of nodes.
-        Optional<vector<GlTFNode>> nodes;
+        base::Optional<base::Vector<GlTFNode>> nodes;
 
         // The index of the default scene. This property MUST NOT be defined,
         // when scenes is undefined. (>= 0)
-        Optional<GlTFInteger> scene;
+        base::Optional<GlTFInteger> scene;
 
         // An array of scenes.
-        Optional<vector<GlTFScene>> scenes;
+        base::Optional<base::Vector<GlTFScene>> scenes;
     };
 
     using GlTFDecodeError = CodecError;

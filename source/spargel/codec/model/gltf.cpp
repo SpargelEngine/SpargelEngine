@@ -13,17 +13,17 @@ namespace spargel::codec::model {
     namespace {
 
         struct Vector3fDecoder {
-            using TargetType = Vector3f;
+            using TargetType = math::Vector3f;
 
             template <DecodeBackend DB>
-            base::Either<Vector3f, ErrorType<DB>> decode(
+            base::Either<math::Vector3f, ErrorType<DB>> decode(
                 DB& backend, const DataType<DB>& data) {
                 auto result =
                     makeVectorDecoder(F32Codec{}).decode(backend, data);
                 if (result.isLeft()) {
                     auto array = result.left();
                     if (array.count() == 3) {
-                        Vector3f v;
+                        math::Vector3f v;
                         v.x = array[0];
                         v.y = array[1];
                         v.z = array[2];
@@ -40,17 +40,17 @@ namespace spargel::codec::model {
         static_assert(Decoder<Vector3fDecoder>);
 
         struct Vector4fDecoder {
-            using TargetType = Vector4f;
+            using TargetType = math::Vector4f;
 
             template <DecodeBackend DB>
-            base::Either<Vector4f, ErrorType<DB>> decode(
+            base::Either<math::Vector4f, ErrorType<DB>> decode(
                 DB& backend, const DataType<DB>& data) {
                 auto result =
                     makeVectorDecoder(F64Codec{}).decode(backend, data);
                 if (result.isLeft()) {
                     auto array = result.left();
                     if (array.count() == 4) {
-                        Vector4f v;
+                        math::Vector4f v;
                         v.x = (float)array[0];
                         v.y = (float)array[1];
                         v.z = (float)array[2];
@@ -68,17 +68,17 @@ namespace spargel::codec::model {
         static_assert(Decoder<Vector4fDecoder>);
 
         struct Matrix4x4fDecoder {
-            using TargetType = Matrix4x4f;
+            using TargetType = math::Matrix4x4f;
 
             template <DecodeBackend DB>
-            static base::Either<Matrix4x4f, ErrorType<DB>> decode(
+            static base::Either<math::Matrix4x4f, ErrorType<DB>> decode(
                 DB& backend, const DataType<DB>& data) {
                 auto result =
                     makeVectorDecoder(F32Codec{}).decode(backend, data);
                 if (result.isLeft()) {
                     auto array = result.left();
                     if (array.count() == 16) {
-                        Matrix4x4f mat;
+                        math::Matrix4x4f mat;
                         for (u8 i = 0; i < 16; i++) {
                             mat.entries[i] = array[i];
                         }

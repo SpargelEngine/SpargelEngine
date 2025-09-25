@@ -1,8 +1,10 @@
 source_set("task") {
     sources = [
+        "task.cpp",
         "task_manager.cpp",
     ]
     public = [
+        "task.h",
         "task_manager.h",
     ]
     deps = [

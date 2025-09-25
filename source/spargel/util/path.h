@@ -12,7 +12,7 @@ namespace spargel::util {
         // whether the path ends with '/
         bool directory;
 
-        base::vector<base::String> components;
+        base::Vector<base::String> components;
     };
 
     base::String dirname(const base::String& path);

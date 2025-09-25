@@ -2,7 +2,7 @@
 
 #include "spargel/base/coroutine.h"
 
-namespace spargel::base {
+namespace spargel::task {
     // this should be copyable
     // a shared_ptr to internal state
     class Event {};
@@ -17,15 +17,15 @@ namespace spargel::base {
     public:
         struct PromiseType {
             Task get_return_object();
-            AlwaysSuspend initial_suspend() { return {}; }
-            AlwaysSuspend final_suspend() noexcept { return {}; }
+            base::AlwaysSuspend initial_suspend() { return {}; }
+            base::AlwaysSuspend final_suspend() noexcept { return {}; }
             void return_void() {}
             void unhandled_exception() {}
             EventAwaitable await_transform(Event e);
         };
 
         using promise_type = PromiseType;
-        using HandleType = CoroutineHandle<promise_type>;
+        using HandleType = base::CoroutineHandle<promise_type>;
 
         explicit Task(HandleType h) : handle_{h} {}
 
@@ -75,4 +75,4 @@ namespace spargel::base {
         template <typename F>
         void postTask(F&& f);
     };
-}  // namespace spargel::base
+}  // namespace spargel::task

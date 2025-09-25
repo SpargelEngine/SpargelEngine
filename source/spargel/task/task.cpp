@@ -1,7 +1,7 @@
-#include "spargel/base/task.h"
+#include "spargel/task/task.h"
 
-namespace spargel::base {
+namespace spargel::task {
     Task Task::PromiseType::get_return_object() {
         return Task{HandleType::from_promise(*this)};
     }
-}  // namespace spargel::base
+}  // namespace spargel::task

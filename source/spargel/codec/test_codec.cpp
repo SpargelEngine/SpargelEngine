@@ -60,7 +60,7 @@ namespace {
         }
 
         base::Either<TestData, CodecError> makeArray(
-            const base::vector<TestData>&) {
+            const base::Vector<TestData>&) {
             return base::Left(TestData{});
         }
 
@@ -120,9 +120,9 @@ namespace {
             return base::Left(base::String(""));
         }
 
-        base::Either<base::vector<TestData>, CodecError> getArray(
+        base::Either<base::Vector<TestData>, CodecError> getArray(
             const TestData&) {
-            return base::Left(base::vector<TestData>{});
+            return base::Left(base::Vector<TestData>{});
         }
 
         base::Either<base::Optional<TestData>, CodecError> getMember(
@@ -146,7 +146,7 @@ namespace {
         base::Optional<base::String> nickname;
         u32 age;
         bool happy;
-        base::vector<f32> scores;
+        base::Vector<f32> scores;
 
         static auto encoder() {
             return makeRecordEncoder<Student>(
@@ -319,7 +319,7 @@ TEST(Codec_Decode_Primitive) {
 
 TEST(Codec_Encode_Array) {
     {
-        base::vector<base::String> v;
+        base::Vector<base::String> v;
         v.emplace("A");
         v.emplace("BC");
         v.emplace("DEF");
@@ -328,12 +328,12 @@ TEST(Codec_Encode_Array) {
         spargel_check(result.isLeft());
     }
     {
-        base::vector<base::vector<i32>> v;
-        base::vector<i32> v1;
+        base::Vector<base::Vector<i32>> v;
+        base::Vector<i32> v1;
         v1.emplace(1);
         v1.emplace(-2);
         v.emplace(base::move(v1));
-        base::vector<i32> v2;
+        base::Vector<i32> v2;
         v2.emplace(3);
         v2.emplace(-4);
         v.emplace(base::move(v2));
@@ -343,7 +343,7 @@ TEST(Codec_Encode_Array) {
     }
 
     {
-        base::vector<base::String> v;
+        base::Vector<base::String> v;
         v.emplace("A");
         v.emplace("BC");
         v.emplace("DEF");
@@ -377,7 +377,7 @@ TEST(Codec_Encode_Record) {
     student.name = "Alice";
     student.age = 20;
     student.happy = true;
-    base::vector<f32> scores;
+    base::Vector<f32> scores;
     scores.emplace(98.0f);
     scores.emplace(87.5f);
     scores.emplace(92.0f);

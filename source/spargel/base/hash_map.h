@@ -125,7 +125,7 @@ namespace spargel::base {
             void grow() {
                 usize new_cap = nextCapacity();
 
-                base::vector<SlotStatus> new_status;
+                base::Vector<SlotStatus> new_status;
                 base::ArrayStorage<K> new_keys{new_cap};
                 base::ArrayStorage<T> new_values{new_cap};
                 new_status.reserve(new_cap);
@@ -156,7 +156,7 @@ namespace spargel::base {
             }
 
             usize findFreeSlot(K const& key, usize cap,
-                               vector<SlotStatus> const& status) {
+                               Vector<SlotStatus> const& status) {
                 spargel_assert(cap > 0);
 
                 u64 h = hash(key);
@@ -212,7 +212,7 @@ namespace spargel::base {
 
             usize _capacity = 0;
             usize _count = 0;
-            base::vector<SlotStatus> _status;
+            base::Vector<SlotStatus> _status;
             base::ArrayStorage<K> _keys;
             base::ArrayStorage<T> _values;
         };

@@ -7,7 +7,6 @@ source_set("base") {
         "panic.cpp",
         "platform.cpp",
         "string.cpp",
-        "task.cpp",
         "trace.cpp",
     ]
     public = [
@@ -44,7 +43,6 @@ source_set("base") {
         "string.h",
         "string_view.h",
         "tagged_union.h",
-        "task.h",
         "trace.h",
         "tuple.h",
         "type_list.h",

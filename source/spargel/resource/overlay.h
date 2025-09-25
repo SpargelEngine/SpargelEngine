@@ -15,7 +15,7 @@ namespace spargel::resource {
     class ResourceManagerOverlay : public ResourceManager {
     public:
         ResourceManagerOverlay(
-            base::vector<base::unique_ptr<ResourceManager>>&& sub_managers)
+            base::Vector<base::unique_ptr<ResourceManager>>&& sub_managers)
             : _sub_managers(base::move(sub_managers)) {}
 
         bool has(const ResourceId& id) override;
@@ -24,7 +24,7 @@ namespace spargel::resource {
             const ResourceId& id) override;
 
     private:
-        base::vector<base::unique_ptr<ResourceManager>> _sub_managers;
+        base::Vector<base::unique_ptr<ResourceManager>> _sub_managers;
     };
 
 }  // namespace spargel::resource

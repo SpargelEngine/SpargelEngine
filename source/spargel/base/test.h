@@ -1,8 +1,6 @@
 #pragma once
 
 #include "spargel/base/allocator.h"
-#include "spargel/base/object.h"
-#include "spargel/base/string_view.h"
 #include "spargel/base/vector.h"
 
 namespace spargel::base {
@@ -32,7 +30,7 @@ namespace spargel::base {
             Test* test;
         };
 
-        vector<TestEntry> _tests;
+        Vector<TestEntry> _tests;
     };
 
 }  // namespace spargel::base

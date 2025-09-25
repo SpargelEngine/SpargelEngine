@@ -37,7 +37,7 @@ namespace spargel::json {
     };
 
     struct JsonArray {
-        base::vector<JsonValue> elements;
+        base::Vector<JsonValue> elements;
     };
 
     // TODO: change to tagged union?
@@ -61,13 +61,14 @@ namespace spargel::json {
             : type(JsonValueType::array), array(base::move(array)) {}
         JsonValue(JsonString&& string)
             : type(JsonValueType::string), string(base::move(string)) {}
-        JsonValue(JsonNumber&& number)
-            : type(JsonValueType::number), number(base::move(number)) {}
-        JsonValue(JsonBoolean&& boolean)
-            : type(JsonValueType::boolean), boolean(base::move(boolean)) {}
 
-        JsonValue(const JsonValue& other) { initByCopy(other); }
-        JsonValue& operator=(const JsonValue& other);
+        JsonValue(JsonNumber number)
+            : type{JsonValueType::number}, number{number} {}
+        JsonValue(JsonBoolean boolean)
+            : type{JsonValueType::boolean}, boolean{boolean} {}
+
+        JsonValue(JsonValue const& other) { initByCopy(other); }
+        JsonValue& operator=(JsonValue const& other);
 
         JsonValue(JsonValue&& other) { initByMove(base::move(other)); }
         JsonValue& operator=(JsonValue&& other);
@@ -77,10 +78,9 @@ namespace spargel::json {
         friend bool operator==(JsonValue const& lhs, JsonValue const& rhs);
 
     private:
-        void destroy();
-
         void initByCopy(const JsonValue& other);
         void initByMove(JsonValue&& other);
+        void destroy();
     };
 
     inline bool isMemberEqual(JsonObject& object, const JsonString& key,

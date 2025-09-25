@@ -67,7 +67,7 @@ namespace spargel::codec {
         }
 
         base::Either<json::JsonValue, JsonEncodeError> makeArray(
-            const base::vector<json::JsonValue>& array) {
+            const base::Vector<json::JsonValue>& array) {
             return base::Left(json::JsonValue(json::JsonArray(array)));
         }
 
@@ -102,7 +102,7 @@ namespace spargel::codec {
         base::Either<base::String, JsonDecodeError> getString(
             const json::JsonValue& data);
 
-        base::Either<base::vector<json::JsonValue>, JsonDecodeError> getArray(
+        base::Either<base::Vector<json::JsonValue>, JsonDecodeError> getArray(
             const json::JsonValue& data);
 
         base::Either<base::Optional<json::JsonValue>, JsonDecodeError>

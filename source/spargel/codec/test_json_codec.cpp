@@ -24,7 +24,7 @@ namespace spargel::codec {
             base::Optional<base::String> nickname;
             u32 age;
             bool happy;
-            base::vector<f32> scores;
+            base::Vector<f32> scores;
 
             static auto codec() {
                 return makeRecordCodec<Student>(
@@ -150,7 +150,7 @@ namespace spargel::codec {
 
         TEST(JsonCodec_Encode_Array) {
             {
-                base::vector<base::String> v;
+                base::Vector<base::String> v;
                 v.emplace("ABC");
                 v.emplace("123");
                 v.emplace("!@#$");
@@ -166,12 +166,12 @@ namespace spargel::codec {
                 spargel_check(array[2] == JsonString("!@#$"));
             }
             {
-                base::vector<base::vector<i32>> v;
-                base::vector<i32> v1;
+                base::Vector<base::Vector<i32>> v;
+                base::Vector<i32> v1;
                 v1.emplace(1);
                 v1.emplace(2);
                 v.emplace(base::move(v1));
-                base::vector<i32> v2;
+                base::Vector<i32> v2;
                 v2.emplace(-3);
                 v2.emplace(-4);
                 v.emplace(base::move(v2));
@@ -233,7 +233,7 @@ namespace spargel::codec {
                 student.name = "Alice";
                 student.age = 20;
                 student.happy = true;
-                base::vector<f32> scores;
+                base::Vector<f32> scores;
                 scores.emplace(98.0f);
                 scores.emplace(87.5f);
                 scores.emplace(92.0f);

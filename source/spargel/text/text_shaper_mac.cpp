@@ -31,8 +31,8 @@ namespace spargel::text {
         auto glyph_runs = CTLineGetGlyphRuns(line);
         auto run_count = CFArrayGetCount(glyph_runs);
 
-        base::vector<CGGlyph> glyphs;
-        base::vector<CGPoint> points;
+        base::Vector<CGGlyph> glyphs;
+        base::Vector<CGPoint> points;
 
         ShapedLine result;
         ShapedSegment segment;

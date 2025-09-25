@@ -32,7 +32,7 @@ namespace spargel::json {
             return String(hexDigits[(ch >> 4) & 0xf]) + hexDigits[ch & 0xf];
         }
 
-        void appendUtf8(base::vector<char>& chars, u32 code) {
+        void appendUtf8(base::Vector<char>& chars, u32 code) {
             if (code <= 0x7f) {
                 chars.emplace((char)code);
             } else if (code <= 0x7ff) {
@@ -220,7 +220,7 @@ namespace spargel::json {
             return Right(JsonParseError("expected '\"'"_sv));
 
         // characters
-        base::vector<char> chars;
+        base::Vector<char> chars;
 
         while (!cursor.isEnd()) {
             char ch = (char)cursor.consumeChar();
@@ -560,7 +560,7 @@ namespace spargel::json {
     Either<JsonArray, JsonParseError> JsonParser::parseElements() {
         spargel_trace_scope("parseElements");
 
-        base::vector<JsonValue> elements;
+        base::Vector<JsonValue> elements;
         while (!cursor.isEnd()) {
             // element
             auto result = parseElement();

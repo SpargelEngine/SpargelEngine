@@ -14,7 +14,7 @@
 
 namespace spargel::base {
 
-    namespace __vector {
+    namespace vector_ {
 
         /// TODO:
         ///     - Implement iterators (with generation checking).
@@ -24,31 +24,31 @@ namespace spargel::base {
         ///       => No.
         ///
         template <typename T>
-        class vector {
+        class Vector {
         public:
-            vector() {}
+            Vector() {}
 
-            vector(vector const& other) {
+            Vector(Vector const& other) {
                 usize cnt = other.count();
                 if (cnt > 0) {
                     allocate(cnt);
                     copyRange(other.begin(), other.end());
                 }
             }
-            vector& operator=(vector const& other) {
-                vector tmp(other);
+            Vector& operator=(Vector const& other) {
+                Vector tmp(other);
                 swap(*this, tmp);
                 return *this;
             }
 
-            vector(vector&& other) { swap(*this, other); }
-            vector& operator=(vector&& other) {
-                vector tmp(move(other));
+            Vector(Vector&& other) { swap(*this, other); }
+            Vector& operator=(Vector&& other) {
+                Vector tmp(move(other));
                 swap(*this, tmp);
                 return *this;
             }
 
-            ~vector() {
+            ~Vector() {
                 if (_begin != nullptr) {
                     destruct_items();
                     deallocate();
@@ -184,7 +184,7 @@ namespace spargel::base {
 
             // Allocator* getAllocator() { return _alloc; }
 
-            friend void tag_invoke(tag<swap>, vector& lhs, vector& rhs) {
+            friend void tag_invoke(tag<swap>, Vector& lhs, Vector& rhs) {
                 // todo: how to compare allocator?
                 // if (lhs._alloc == rhs._alloc) [[likely]] {
                 swap(lhs._begin, rhs._begin);
@@ -285,11 +285,11 @@ namespace spargel::base {
             // Allocator* _alloc = default_allocator();
         };
 
-    }  // namespace __vector
+    }  // namespace vector_
 
-    using __vector::vector;
+    using vector_::Vector;
 
-    template <typename T>
-    using Vector = vector<T>;
+    // template <typename T>
+    // using vector = Vector<T>;
 
 }  // namespace spargel::base

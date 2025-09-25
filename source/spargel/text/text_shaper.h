@@ -1,6 +1,5 @@
 #pragma once
 
-#include "spargel/base/span.h"
 #include "spargel/base/unique_ptr.h"
 #include "spargel/base/vector.h"
 #include "spargel/text/font.h"
@@ -10,8 +9,8 @@ namespace spargel::text {
     class StyledText;
 
     struct ShapedSegment {
-        base::vector<GlyphId> glyphs;
-        base::vector<math::Vector2f> positions;
+        base::Vector<GlyphId> glyphs;
+        base::Vector<math::Vector2f> positions;
         float width;
         Font* font;
     };

@@ -250,8 +250,8 @@ namespace spargel::gpu {
     private:
         id<MTLFunction> _func;
         id<MTLComputePipelineState> _pipeline;
-        base::vector<ArgumentGroupInfoMetal> _compute_groups;
-        base::vector<ArgumentInfoMetal> _compute_args;
+        base::Vector<ArgumentGroupInfoMetal> _compute_groups;
+        base::Vector<ArgumentInfoMetal> _compute_args;
     };
 
     class RenderPipelineMetal final : public RenderPipeline {
@@ -325,11 +325,11 @@ namespace spargel::gpu {
         id<MTLFunction> _frag_func;
         id<MTLRenderPipelineState> _pipeline;
 
-        base::vector<ArgumentGroupInfoMetal> _vert_groups;
-        base::vector<ArgumentInfoMetal> _vert_args;
+        base::Vector<ArgumentGroupInfoMetal> _vert_groups;
+        base::Vector<ArgumentInfoMetal> _vert_args;
 
-        base::vector<ArgumentGroupInfoMetal> _frag_groups;
-        base::vector<ArgumentInfoMetal> _frag_args;
+        base::Vector<ArgumentGroupInfoMetal> _frag_groups;
+        base::Vector<ArgumentInfoMetal> _frag_args;
     };
 
     class BindGroupMetal final : public BindGroup {

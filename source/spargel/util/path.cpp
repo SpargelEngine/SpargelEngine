@@ -50,7 +50,7 @@ namespace spargel::util {
 
         bool absolute = data[0] == '/';
         bool directory = false;
-        base::vector<base::String> components;
+        base::Vector<base::String> components;
 
         for (; cur < path.end(); cur++) {
             if (*cur == '/') continue;

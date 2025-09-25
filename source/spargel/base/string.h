@@ -225,7 +225,7 @@ namespace spargel::base {
             }
 
         private:
-            vector<char> _bytes;
+            Vector<char> _bytes;
         };
 
         class CString {

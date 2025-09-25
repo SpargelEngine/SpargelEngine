@@ -119,7 +119,7 @@ namespace spargel::codec {
         }
     }
 
-    base::Either<base::vector<json::JsonValue>, JsonDecodeError>
+    base::Either<base::Vector<json::JsonValue>, JsonDecodeError>
     JsonDecodeBackend::getArray(const json::JsonValue& data) {
         if (data.type == json::JsonValueType::array) {
             return base::Left(data.array.elements);
