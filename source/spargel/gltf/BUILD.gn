@@ -1,0 +1,25 @@
+source_set("gltf") {
+    public = [
+        "gltf.h",
+    ]
+    sources = [
+        "gltf.cpp",
+    ]
+    deps = [
+        "//source/spargel/base",
+        "//source/spargel/codec",
+        "//source/spargel/json",
+        "//source/spargel/math",
+    ]
+}
+
+executable("summary_gltf") {
+    sources = [
+        "summary_gltf.cpp",
+    ]
+    deps = [
+        ":gltf",
+        "//source/spargel/base",
+        "//source/spargel/resource",
+    ]
+}

@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "spargel/base/hash_map.h"
 #include "spargel/base/optional.h"
 #include "spargel/base/string.h"
 #include "spargel/base/vector.h"
@@ -17,7 +16,7 @@
 #include "spargel/math/matrix.h"
 #include "spargel/math/vector.h"
 
-namespace spargel::codec::model {
+namespace spargel::gltf {
 
     using GlTFBoolean = bool;
     using GlTFInteger = i32;
@@ -306,8 +305,8 @@ namespace spargel::codec::model {
         base::Optional<base::Vector<GlTFScene>> scenes;
     };
 
-    using GlTFDecodeError = CodecError;
+    using GlTFDecodeError = codec::CodecError;
 
     base::Either<GlTF, GlTFDecodeError> parseGlTF(const char* text, usize len);
 
-}  // namespace spargel::codec::model
+}  // namespace spargel::gltf

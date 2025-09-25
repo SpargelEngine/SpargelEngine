@@ -30,7 +30,16 @@ source_set("config") {
 source_set("spargel") {
     deps = [
         "//source/spargel/base",
+        "//source/spargel/codec",
+        "//source/spargel/deflate",
+        # TODO: Rewrite ECS.
+        # "//source/spargel/ecs",
+        "//source/spargel/gltf",
         "//source/spargel/gpu",
+        "//source/spargel/input",
+        "//source/spargel/json",
+        "//source/spargel/logging",
+        "//source/spargel/math",
         "//source/spargel/render",
         "//source/spargel/resource",
         "//source/spargel/task",

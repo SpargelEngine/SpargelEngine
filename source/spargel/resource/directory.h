@@ -1,6 +1,5 @@
 #pragma once
 
-#include "spargel/base/types.h"
 #include "spargel/base/unique_ptr.h"
 #include "spargel/resource/resource.h"
 

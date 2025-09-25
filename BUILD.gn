@@ -1,7 +1,6 @@
 group("gn_all") {
     deps = [
         "//source/spargel",
-        "//source/spargel/codec/model:summary_gltf",
         "//source/spargel/lang:driver",
     ]
     if (is_macos) {

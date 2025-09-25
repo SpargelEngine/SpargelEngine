@@ -4,8 +4,10 @@
 
 namespace spargel::util {
 
-    base::String dirname(const base::String& path) {
-        if (path.length() == 0) return base::String(".");
+    base::String dirname(base::StringView path) {
+        if (path.length() == 0) {
+            return base::String(".");
+        }
 
         const char* data = path.data();
         const char* cur = path.end() - 1;
@@ -26,24 +28,29 @@ namespace spargel::util {
 
         // Find last separator
         for (; cur >= path.begin(); cur--) {
-            if (*cur == PATH_SPLIT) break;
+            if (*cur == PATH_SPLIT) {
+                break;
+            }
         }
 
         // If no separator found, return "."
-        if (cur < path.begin()) return base::String(".");
+        if (cur < path.begin()) {
+            return base::String(".");
+        }
 
         // If we're at root, return "/"
         if (cur == path.begin() && *cur == PATH_SPLIT) {
-            return base::string_from_range(data, cur + 1);
+            return base::String::from_range(data, cur + 1);
         }
 
         // Return path up to but not including the separator
-        return base::string_from_range(data, cur);
+        return base::String::from_range(data, cur);
     }
 
     ParsedPath parsePath(const base::String& path) {
-        if (path.length() == 0)
+        if (path.length() == 0) {
             return {.absolute = false, .directory = false, .components = {}};
+        }
 
         const char* data = path.data();
         const char *cur = path.begin(), *s;

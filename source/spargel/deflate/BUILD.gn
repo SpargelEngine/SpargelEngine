@@ -1,0 +1,22 @@
+source_set("deflate") {
+    public = [
+        "deflate.h",
+    ]
+    sources = [
+        "deflate.cpp",
+    ]
+    deps = [
+        "//source/spargel/base",
+    ]
+}
+
+executable("demo_deflate") {
+    sources = [
+        "deflate_demo.cpp",
+    ]
+    deps = [
+        ":deflate",
+        "//source/spargel/base",
+        "//source/spargel/resource",
+    ]
+}

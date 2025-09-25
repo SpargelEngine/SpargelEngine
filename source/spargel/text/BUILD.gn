@@ -12,6 +12,7 @@ source_set("text") {
     deps = [
         "//source/spargel/base",
         "//source/spargel/logging",
+        "//source/spargel/math",
     ]
 
     if (is_macos) {

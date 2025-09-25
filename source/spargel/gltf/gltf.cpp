@@ -1,4 +1,4 @@
-#include "spargel/codec/model/gltf.h"
+#include "spargel/gltf/gltf.h"
 
 #include "spargel/base/functional.h"
 #include "spargel/base/string_view.h"
@@ -6,20 +6,20 @@
 #include "spargel/codec/json_codec.h"
 #include "spargel/json/json_parser.h"
 
-using namespace spargel::base::literals;
-
-namespace spargel::codec::model {
+namespace spargel::gltf {
 
     namespace {
+
+        using namespace base::literals;
 
         struct Vector3fDecoder {
             using TargetType = math::Vector3f;
 
-            template <DecodeBackend DB>
-            base::Either<math::Vector3f, ErrorType<DB>> decode(
-                DB& backend, const DataType<DB>& data) {
+            template <codec::DecodeBackend DB>
+            base::Either<math::Vector3f, codec::ErrorType<DB>> decode(
+                DB& backend, const codec::DataType<DB>& data) {
                 auto result =
-                    makeVectorDecoder(F32Codec{}).decode(backend, data);
+                    makeVectorDecoder(codec::F32Codec{}).decode(backend, data);
                 if (result.isLeft()) {
                     auto array = result.left();
                     if (array.count() == 3) {
@@ -29,7 +29,7 @@ namespace spargel::codec::model {
                         v.z = array[2];
                         return base::Left(base::move(v));
                     } else {
-                        return base::Right<ErrorType<DB>>(
+                        return base::Right<codec::ErrorType<DB>>(
                             "Vector3f expected 3 numbers"_sv);
                     }
                 } else {
@@ -37,16 +37,16 @@ namespace spargel::codec::model {
                 }
             }
         };
-        static_assert(Decoder<Vector3fDecoder>);
+        static_assert(codec::Decoder<Vector3fDecoder>);
 
         struct Vector4fDecoder {
             using TargetType = math::Vector4f;
 
-            template <DecodeBackend DB>
-            base::Either<math::Vector4f, ErrorType<DB>> decode(
-                DB& backend, const DataType<DB>& data) {
+            template <codec::DecodeBackend DB>
+            base::Either<math::Vector4f, codec::ErrorType<DB>> decode(
+                DB& backend, const codec::DataType<DB>& data) {
                 auto result =
-                    makeVectorDecoder(F64Codec{}).decode(backend, data);
+                    makeVectorDecoder(codec::F64Codec{}).decode(backend, data);
                 if (result.isLeft()) {
                     auto array = result.left();
                     if (array.count() == 4) {
@@ -57,7 +57,7 @@ namespace spargel::codec::model {
                         v.w = (float)array[3];
                         return base::Left(base::move(v));
                     } else {
-                        return base::Right<ErrorType<DB>>(
+                        return base::Right<codec::ErrorType<DB>>(
                             "Vector4f expected 4 numbers"_sv);
                     }
                 } else {
@@ -65,16 +65,16 @@ namespace spargel::codec::model {
                 }
             }
         };
-        static_assert(Decoder<Vector4fDecoder>);
+        static_assert(codec::Decoder<Vector4fDecoder>);
 
         struct Matrix4x4fDecoder {
             using TargetType = math::Matrix4x4f;
 
-            template <DecodeBackend DB>
-            static base::Either<math::Matrix4x4f, ErrorType<DB>> decode(
-                DB& backend, const DataType<DB>& data) {
+            template <codec::DecodeBackend DB>
+            static base::Either<math::Matrix4x4f, codec::ErrorType<DB>> decode(
+                DB& backend, const codec::DataType<DB>& data) {
                 auto result =
-                    makeVectorDecoder(F32Codec{}).decode(backend, data);
+                    makeVectorDecoder(codec::F32Codec{}).decode(backend, data);
                 if (result.isLeft()) {
                     auto array = result.left();
                     if (array.count() == 16) {
@@ -84,7 +84,7 @@ namespace spargel::codec::model {
                         }
                         return base::Left(base::move(mat));
                     } else {
-                        return base::Right<ErrorType<DB>>(
+                        return base::Right<codec::ErrorType<DB>>(
                             "Matrix4x4f expected 16 numbers"_sv);
                     }
                 } else {
@@ -92,85 +92,88 @@ namespace spargel::codec::model {
                 }
             }
         };
-        static_assert(Decoder<Matrix4x4fDecoder>);
+        static_assert(codec::Decoder<Matrix4x4fDecoder>);
 
         auto glTFAccessorDecoder = makeRecordDecoder<GlTFAccessor>(
             base::Constructor<GlTFAccessor>{},
-            makeOptionalDecodeField("bufferView"_sv, I32Codec{}),
-            makeOptionalDecodeField("byteOffset"_sv, I32Codec{}),
-            makeNormalDecodeField("componentType"_sv, I32Codec{}),
-            makeOptionalDecodeField("normalized"_sv, BooleanCodec{}),
-            makeNormalDecodeField("count"_sv, I32Codec{}),
-            makeNormalDecodeField("type"_sv, StringCodec{}),
-            makeOptionalDecodeField("max"_sv, makeVectorDecoder(F64Codec{})),
-            makeOptionalDecodeField("min"_sv, makeVectorDecoder(F64Codec{})),
-            makeOptionalDecodeField("name"_sv, StringCodec{}));
+            makeOptionalDecodeField("bufferView"_sv, codec::I32Codec{}),
+            makeOptionalDecodeField("byteOffset"_sv, codec::I32Codec{}),
+            makeNormalDecodeField("componentType"_sv, codec::I32Codec{}),
+            makeOptionalDecodeField("normalized"_sv, codec::BooleanCodec{}),
+            makeNormalDecodeField("count"_sv, codec::I32Codec{}),
+            makeNormalDecodeField("type"_sv, codec::StringCodec{}),
+            makeOptionalDecodeField("max"_sv,
+                                    makeVectorDecoder(codec::F64Codec{})),
+            makeOptionalDecodeField("min"_sv,
+                                    makeVectorDecoder(codec::F64Codec{})),
+            makeOptionalDecodeField("name"_sv, codec::StringCodec{}));
 
         auto glTFAssetDecoder = makeRecordDecoder<GlTFAsset>(
             base::Constructor<GlTFAsset>{},
-            makeOptionalDecodeField("copyright"_sv, StringCodec{}),
-            makeOptionalDecodeField("generator"_sv, StringCodec{}),
-            makeNormalDecodeField("version"_sv, StringCodec{}),
-            makeOptionalDecodeField("minVersion"_sv, StringCodec{}));
+            makeOptionalDecodeField("copyright"_sv, codec::StringCodec{}),
+            makeOptionalDecodeField("generator"_sv, codec::StringCodec{}),
+            makeNormalDecodeField("version"_sv, codec::StringCodec{}),
+            makeOptionalDecodeField("minVersion"_sv, codec::StringCodec{}));
 
         auto glTFBufferDecoder = makeRecordDecoder<GlTFBuffer>(
             base::Constructor<GlTFBuffer>{},
-            makeOptionalDecodeField("uri"_sv, StringCodec{}),
-            makeNormalDecodeField("byteLength"_sv, I32Codec{}),
-            makeOptionalDecodeField("name"_sv, StringCodec{}));
+            makeOptionalDecodeField("uri"_sv, codec::StringCodec{}),
+            makeNormalDecodeField("byteLength"_sv, codec::I32Codec{}),
+            makeOptionalDecodeField("name"_sv, codec::StringCodec{}));
 
         auto glTFBufferViewDecoder = makeRecordDecoder<GlTFBufferView>(
             base::Constructor<GlTFBufferView>{},
-            makeNormalDecodeField("buffer"_sv, I32Codec{}),
-            makeOptionalDecodeField("byteOffset"_sv, I32Codec{}),
-            makeNormalDecodeField("byteLength"_sv, I32Codec{}),
-            makeOptionalDecodeField("byteStride"_sv, I32Codec{}),
-            makeOptionalDecodeField("target"_sv, I32Codec{}),
-            makeOptionalDecodeField("name"_sv, StringCodec{}));
+            makeNormalDecodeField("buffer"_sv, codec::I32Codec{}),
+            makeOptionalDecodeField("byteOffset"_sv, codec::I32Codec{}),
+            makeNormalDecodeField("byteLength"_sv, codec::I32Codec{}),
+            makeOptionalDecodeField("byteStride"_sv, codec::I32Codec{}),
+            makeOptionalDecodeField("target"_sv, codec::I32Codec{}),
+            makeOptionalDecodeField("name"_sv, codec::StringCodec{}));
 
         auto glTFMeshPrimitiveAttributesDecoder =
             makeRecordDecoder<GlTFMeshPrimitiveAttributes>(
                 base::Constructor<GlTFMeshPrimitiveAttributes>{},
-                makeOptionalDecodeField("POSITION"_sv, I32Codec{}),
-                makeOptionalDecodeField("NORMAL"_sv, I32Codec{}),
-                makeOptionalDecodeField("TEXCOORD_0"_sv, I32Codec{}),
-                makeOptionalDecodeField("COLOR_0"_sv, I32Codec{}));
+                makeOptionalDecodeField("POSITION"_sv, codec::I32Codec{}),
+                makeOptionalDecodeField("NORMAL"_sv, codec::I32Codec{}),
+                makeOptionalDecodeField("TEXCOORD_0"_sv, codec::I32Codec{}),
+                makeOptionalDecodeField("COLOR_0"_sv, codec::I32Codec{}));
 
         auto glTFMeshPrimitiveDecoder = makeRecordDecoder<GlTFMeshPrimitive>(
             base::Constructor<GlTFMeshPrimitive>{},
             makeNormalDecodeField("attributes"_sv,
                                   glTFMeshPrimitiveAttributesDecoder),
-            makeOptionalDecodeField("indices"_sv, I32Codec{}),
-            makeOptionalDecodeField("material"_sv, I32Codec{}),
-            makeOptionalDecodeField("mode"_sv, I32Codec{}));
+            makeOptionalDecodeField("indices"_sv, codec::I32Codec{}),
+            makeOptionalDecodeField("material"_sv, codec::I32Codec{}),
+            makeOptionalDecodeField("mode"_sv, codec::I32Codec{}));
 
         auto glTFMeshDecoder = makeRecordDecoder<GlTFMesh>(
             base::Constructor<GlTFMesh>{},
             makeNormalDecodeField("primitives"_sv,
                                   makeVectorDecoder(glTFMeshPrimitiveDecoder)),
             makeOptionalDecodeField("weights"_sv,
-                                    makeVectorDecoder(F64Codec{})),
-            makeOptionalDecodeField("name"_sv, StringCodec{}));
+                                    makeVectorDecoder(codec::F64Codec{})),
+            makeOptionalDecodeField("name"_sv, codec::StringCodec{}));
 
         auto glTFNodeDecoder = makeRecordDecoder<GlTFNode>(
             base::Constructor<GlTFNode>{},
-            makeOptionalDecodeField("camera"_sv, I32Codec{}),
+            makeOptionalDecodeField("camera"_sv, codec::I32Codec{}),
             makeOptionalDecodeField("children"_sv,
-                                    makeVectorDecoder(I32Codec{})),
-            makeOptionalDecodeField("skin"_sv, I32Codec{}),
-            makeOptionalDecodeField("matrix"_sv, Matrix4x4fDecoder{}),
-            makeOptionalDecodeField("mesh"_sv, I32Codec{}),
-            makeOptionalDecodeField("rotation"_sv, Vector4fDecoder{}),
-            makeOptionalDecodeField("scale"_sv, Vector3fDecoder{}),
-            makeOptionalDecodeField("translation"_sv, Vector3fDecoder{}),
+                                    makeVectorDecoder(codec::I32Codec{})),
+            makeOptionalDecodeField("skin"_sv, codec::I32Codec{}),
+            codec::makeOptionalDecodeField("matrix"_sv, Matrix4x4fDecoder{}),
+            makeOptionalDecodeField("mesh"_sv, codec::I32Codec{}),
+            codec::makeOptionalDecodeField("rotation"_sv, Vector4fDecoder{}),
+            codec::makeOptionalDecodeField("scale"_sv, Vector3fDecoder{}),
+            codec::makeOptionalDecodeField("translation"_sv, Vector3fDecoder{}),
             makeOptionalDecodeField("weights"_sv,
-                                    makeVectorDecoder(F64Codec{})),
-            makeOptionalDecodeField("name"_sv, StringCodec{}));
+                                    makeVectorDecoder(codec::F64Codec{})),
+            makeOptionalDecodeField("name"_sv, codec::StringCodec{}));
 
         auto glTFSceneDecoder = makeRecordDecoder<GlTFScene>(
             base::Constructor<GlTFScene>{},
-            makeOptionalDecodeField("nodes"_sv, makeVectorDecoder(I32Codec{})),
-            makeOptionalDecodeField("name"_sv, StringCodec{}));
+            makeOptionalDecodeField("nodes"_sv,
+                                    makeVectorDecoder(codec::I32Codec{})),
+            makeOptionalDecodeField("name"_sv, codec::StringCodec{}));
 
         auto glTFDecoder = makeRecordDecoder<GlTF>(
             base::Constructor<GlTF>{},
@@ -185,7 +188,7 @@ namespace spargel::codec::model {
                                     makeVectorDecoder(glTFMeshDecoder)),
             makeOptionalDecodeField("nodes"_sv,
                                     makeVectorDecoder(glTFNodeDecoder)),
-            makeOptionalDecodeField("scene"_sv, I32Codec{}),
+            makeOptionalDecodeField("scene"_sv, codec::I32Codec{}),
             makeOptionalDecodeField("scenes"_sv,
                                     makeVectorDecoder(glTFSceneDecoder)));
 
@@ -196,7 +199,7 @@ namespace spargel::codec::model {
         if (json_result.isRight())
             return base::Right<GlTFDecodeError>(json_result.right().message());
 
-        JsonDecodeBackend backend;
+        codec::JsonDecodeBackend backend;
         auto result =
             glTFDecoder.decode(backend, base::move(json_result.left()));
         if (result.isLeft())
@@ -206,4 +209,4 @@ namespace spargel::codec::model {
                 base::move(result.right().message()));
     }
 
-}  // namespace spargel::codec::model
+}  // namespace spargel::gltf

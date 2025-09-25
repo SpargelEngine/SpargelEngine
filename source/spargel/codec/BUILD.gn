@@ -23,5 +23,6 @@ executable("codec_tests") {
         "//source/spargel/base",
         "//source/spargel/base:test_main",
         "//source/spargel/json",
+        "//source/spargel/math",
     ]
 }

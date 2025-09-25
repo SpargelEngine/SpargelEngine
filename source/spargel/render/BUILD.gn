@@ -13,6 +13,7 @@ source_set("render") {
     deps = [
         "//source/spargel/base",
         "//source/spargel/gpu",
+        "//source/spargel/math",
         "//source/spargel/logging",
         "//source/spargel/resource",
         "//source/spargel/text",
@@ -55,6 +56,7 @@ executable("demo_ui_renderer") {
 
         "//source/spargel/base",
         "//source/spargel/gpu",
+        "//source/spargel/math",
         "//source/spargel/resource",
         "//source/spargel/text",
         "//source/spargel/ui",

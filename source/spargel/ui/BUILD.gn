@@ -15,6 +15,7 @@ source_set("ui") {
     deps = [
         "//source/spargel/base",
         "//source/spargel/logging",
+        "//source/spargel/math",
         "//source/spargel/render",
     ]
 

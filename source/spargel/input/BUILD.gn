@@ -1,0 +1,13 @@
+source_set("input") {
+    public = [
+        "input_device.h",
+        "input_manager.h",
+        "keyboard_device.h",
+    ]
+    sources = [
+        "input_manager.cpp",
+    ]
+    deps = [
+        "//source/spargel/base",
+    ]
+}

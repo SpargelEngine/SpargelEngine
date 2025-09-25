@@ -2,7 +2,6 @@ source_set("base") {
     sources = [
         "allocator.cpp",
         "console.cpp",
-        "deflate.cpp",
         "format.cpp",
         "panic.cpp",
         "platform.cpp",
@@ -22,7 +21,6 @@ source_set("base") {
         "concept.h",
         "console.h",
         "coroutine.h",
-        "deflate.h",
         "either.h",
         "enum.h",
         "functional.h",

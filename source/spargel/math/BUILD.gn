@@ -1,0 +1,9 @@
+source_set("math") {
+    public = [
+        "function.h",
+        "matrix.h",
+        "point.h",
+        "rectangle.h",
+        "vector.h",
+    ]
+}

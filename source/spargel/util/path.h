@@ -15,7 +15,7 @@ namespace spargel::util {
         base::Vector<base::String> components;
     };
 
-    base::String dirname(const base::String& path);
+    base::String dirname(base::StringView path);
 
     ParsedPath parsePath(const base::String& path);
 

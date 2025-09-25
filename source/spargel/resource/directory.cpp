@@ -1,6 +1,5 @@
 #include "spargel/resource/directory.h"
 
-#include "spargel/base/assert.h"
 #include "spargel/base/const.h"
 #include "spargel/base/platform.h"
 #include "spargel/logging/logging.h"
@@ -244,7 +243,8 @@ namespace spargel::resource {
 
     base::unique_ptr<ResourceManagerDirectory> makeRelativeManager(
         const base::String& resources_dir) {
-        base::String root_path = util::dirname(base::get_executable_path());
+        base::String root_path =
+            util::dirname(base::get_executable_path().view());
         if (resources_dir.length() > 0)
             root_path = root_path + PATH_SPLIT + base::String(resources_dir);
         return base::make_unique<ResourceManagerDirectory>(root_path.view());

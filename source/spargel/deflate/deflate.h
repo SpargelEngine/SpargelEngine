@@ -7,14 +7,15 @@
 #include "spargel/base/unique_ptr.h"
 #include "spargel/base/vector.h"
 
-namespace spargel::base {
+namespace spargel::deflate {
     class DeflateDecompressor {
     public:
-        static UniquePtr<DeflateDecompressor> make() {
-            return makeUnique<DeflateDecompressor>();
+        static base::UniquePtr<DeflateDecompressor> make() {
+            return base::makeUnique<DeflateDecompressor>();
         }
 
-        void decompress(Span<Byte> input, Vector<Byte>& output);
+        void decompress(base::Span<base::Byte> input,
+                        base::Vector<base::Byte>& output);
 
     private:
         // The DEFLATE Format
@@ -54,16 +55,16 @@ namespace spargel::base {
             // NOTE: The bit buffer will be cleared.
             void alignToBoundary();
             // Copy n bytes to output.
-            void copy(usize n, Vector<Byte>& output);
+            void copy(usize n, base::Vector<base::Byte>& output);
             // Align to the next byte boundary and copy n bytes to the output.
-            void alignAndCopy(usize n, Vector<Byte>& output) {
+            void alignAndCopy(usize n, base::Vector<base::Byte>& output) {
                 alignToBoundary();
                 copy(n, output);
             }
 
             void advanceBytes(usize n) {
                 spargel_check(bits_left_ == 0);
-                spargel_check(n <= checkedConvert<usize>(end_ - next_));
+                spargel_check(n <= base::checkedConvert<usize>(end_ - next_));
                 next_ += n;
             }
             // Read (little-endian) u16 from the stream.
@@ -84,7 +85,9 @@ namespace spargel::base {
             u8 bit0() { return buffer_ & 0b1; }
             u8 bit21() { return (buffer_ >> 1) & 0b11; }
 
-            usize consumed() { return checkedConvert<usize>(next_ - begin_); }
+            usize consumed() {
+                return base::checkedConvert<usize>(next_ - begin_);
+            }
 
         private:
             // equal to the number of bits of the buffer
@@ -109,8 +112,8 @@ namespace spargel::base {
             u8 trailing_zero_ = 0;
         };
 
-        void decompressBlock(Vector<Byte>& output);
-        void plainBlock(Vector<Byte>& out);
+        void decompressBlock(base::Vector<base::Byte>& output);
+        void plainBlock(base::Vector<base::Byte>& out);
 
         BitStream stream_;
 
@@ -120,4 +123,4 @@ namespace spargel::base {
         // Decode tables
         [[maybe_unused]] u32 litlen_table_[LITLEN_TABLE_SIZE];
     };
-}  // namespace spargel::base
+}  // namespace spargel::deflate

@@ -1,10 +1,10 @@
-#include "spargel/base/deflate.h"
+#include "spargel/deflate/deflate.h"
 
 #include "spargel/base/check.h"
 #include "spargel/base/checked_convert.h"
 #include "spargel/base/enum.h"
 
-namespace spargel::base {
+namespace spargel::deflate {
     namespace {
 #define BLOCK_TYPES_X()    \
     X(NoCompression, 0b00) \
@@ -17,8 +17,8 @@ namespace spargel::base {
         };
         BlockType bitsToBlockType(u8 x) {
             switch (x) {
-#define X(name, value)                  \
-    case toUnderlying(BlockType::name): \
+#define X(name, value)                        \
+    case base::toUnderlying(BlockType::name): \
         return BlockType::name;
                 BLOCK_TYPES_X()
 #undef X
@@ -28,14 +28,15 @@ namespace spargel::base {
         }
 #undef BLOCK_TYPES_X
     }  // namespace
-    void DeflateDecompressor::decompress(Span<Byte> input, Vector<Byte>& out) {
+    void DeflateDecompressor::decompress(base::Span<base::Byte> input,
+                                         base::Vector<base::Byte>& out) {
         stream_ = BitStream(input.begin(), input.end());
         // while (true) {
         // TODO
         decompressBlock(out);
         // }
     }
-    void DeflateDecompressor::decompressBlock(Vector<Byte>& out) {
+    void DeflateDecompressor::decompressBlock(base::Vector<base::Byte>& out) {
         stream_.refill();
         [[maybe_unused]]
         u8 final_block = stream_.bit0();
@@ -47,7 +48,7 @@ namespace spargel::base {
         }
         // TODO
     }
-    void DeflateDecompressor::plainBlock(Vector<Byte>& out) {
+    void DeflateDecompressor::plainBlock(base::Vector<base::Byte>& out) {
         stream_.alignToBoundary();
         u16 len = stream_.consumeU16();
         u16 nlen = stream_.consumeU16();
@@ -56,7 +57,7 @@ namespace spargel::base {
         // NOTE:
         //   `nlen` is promoted to int in the expression `~nlen`.
         //   We need to mask the extended zeros.
-        spargel_check(len == checkedConvert<u16>(~nlen & 0x00FF));
+        spargel_check(len == base::checkedConvert<u16>(~nlen & 0x00FF));
         stream_.copy(len, out);
     }
     //         least-significant bit
@@ -94,12 +95,13 @@ namespace spargel::base {
         bits_left_ = 0;
         trailing_zero_ = 0;
     }
-    void DeflateDecompressor::BitStream::copy(usize n, Vector<Byte>& output) {
-        spargel_check(n <= checkedConvert<usize>(end_ - next_));
+    void DeflateDecompressor::BitStream::copy(
+        usize n, base::Vector<base::Byte>& output) {
+        spargel_check(n <= base::checkedConvert<usize>(end_ - next_));
         output.reserve(output.count() + n);
         memcpy(output.end(), next_, n);
         output.set_count(output.count() + n);
         next_ += n;
     }
 
-}  // namespace spargel::base
+}  // namespace spargel::deflate
