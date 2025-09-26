@@ -56,6 +56,8 @@ source_set("base") {
     if (is_macos) {
         sources += [
             "platform_mac.cpp",
+            # TODO
+            "platform_posix.cpp",
         ]
     }
     if (is_windows) {

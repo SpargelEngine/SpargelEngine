@@ -1,3 +1,17 @@
+import("//gn/config/vulkan.gni")
+import("//gn/autoconfig.gni")
+
+autoconfig("build_config") {
+    header = "build_config.h"
+
+    enable_metal = is_macos
+
+    flags = [
+        "SPARGEL_GPU_ENABLE_VULKAN=$enable_vulkan",
+        "SPARGEL_GPU_ENABLE_METAL=$enable_metal",
+    ]
+}
+
 source_set("gpu") {
     sources = [
         "gpu_context.cpp",
@@ -9,6 +23,7 @@ source_set("gpu") {
         "tlsf_allocator.h"
     ]
     deps = [
+        ":build_config",
         "//source/spargel/base",
         "//source/spargel/codec",
         "//source/spargel/logging",
@@ -23,6 +38,15 @@ source_set("gpu") {
         frameworks = [
             "Foundation.framework",
             "Metal.framework",
+        ]
+    }
+
+    if (enable_vulkan) {
+        sources += [
+            "gpu_vulkan.cpp",
+        ]
+        include_dirs = [
+            "$vulkan_sdk/include",
         ]
     }
 }

@@ -112,13 +112,35 @@ namespace spargel::deflate {
             u8 trailing_zero_ = 0;
         };
 
-        void decompressBlock(base::Vector<base::Byte>& output);
+        bool decompressBlock(base::Vector<base::Byte>& output);
         void plainBlock(base::Vector<base::Byte>& out);
+        void fixedBlock(base::Vector<base::Byte>& out);
 
         BitStream stream_;
 
+        // [RFC1951, Section 3.2.5]
+        //
+        // There are three alphabets conceptually.
+        // - literal byte values [0, 255]
+        // - (length, backward distance) pairs, length in [3, 258] and distance
+        //   in [1, 32768]
+        //
+        // In fact literal and length are merged into a single alphabet [0,
+        // 285].
+        // - [0, 255] : literal bytes.
+        // - 256 : end of block
+        // - [257, 285] : length (with extra bits following the symbol code)
+        //
+        // [286, 287] never occur in compressed data, but used in code
+        // construction.
+        static constexpr usize LITLEN_SYMBOLS_COUNT = 288;
+
         // Table sizes
         static constexpr usize LITLEN_TABLE_SIZE = 2342;
+
+        // Code lengths of literal/length alphabet.
+        // The code lengths are sufficient to generate the actual codes.
+        u8 litlen_symbols_length_[LITLEN_SYMBOLS_COUNT];
 
         // Decode tables
         [[maybe_unused]] u32 litlen_table_[LITLEN_TABLE_SIZE];

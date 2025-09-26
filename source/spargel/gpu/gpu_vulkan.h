@@ -2,7 +2,6 @@
 
 #include "spargel/base/hash_map.h"
 #include "spargel/base/platform.h"
-#include "spargel/base/unique_ptr.h"
 #include "spargel/base/vector.h"
 #include "spargel/config.h"
 #include "spargel/gpu/gpu.h"
@@ -142,22 +141,22 @@ namespace spargel::gpu {
         VkImage _texture;
     };
 
-    class SurfaceVulkan final : public Surface {
-    public:
-        explicit SurfaceVulkan(VkSurfaceKHR s) : _surface{s} {}
-        ~SurfaceVulkan() {}
+    // class SurfaceVulkan final : public Surface {
+    // public:
+    //     explicit SurfaceVulkan(VkSurfaceKHR s) : _surface{s} {}
+    //     ~SurfaceVulkan() {}
 
-        auto surface() const { return _surface; }
+    //     auto surface() const { return _surface; }
 
-        Texture* nextTexture() override;
+    //     Texture* nextTexture() override;
 
-        float width() override;
-        float height() override;
+    //     float width() override;
+    //     float height() override;
 
-    private:
-        VkSurfaceKHR _surface;
-        VkSwapchainKHR _swapchain;
-    };
+    // private:
+    //     VkSurfaceKHR _surface;
+    //     VkSwapchainKHR _swapchain;
+    // };
 
     class CommandQueueVulkan final : public CommandQueue {
     public:
@@ -168,6 +167,7 @@ namespace spargel::gpu {
 
         CommandBuffer* createCommandBuffer() override;
         void destroyCommandBuffer(CommandBuffer*) override;
+        void submit(CommandBuffer*) override {}
 
     private:
         void createCommandPool();
@@ -191,7 +191,7 @@ namespace spargel::gpu {
         void endRenderPass(RenderPassEncoder* encoder) override;
         ComputePassEncoder* beginComputePass() override;
         void endComputePass(ComputePassEncoder* encoder) override;
-        void present(Surface* surface) override;
+        // void present(Surface* surface) override;
         void submit() override;
         void wait() override;
 
@@ -214,8 +214,7 @@ namespace spargel::gpu {
         void setRenderPipeline(RenderPipeline* pipeline) override;
         void setVertexBuffer(Buffer* buffer,
                              VertexBufferLocation const& loc) override;
-        void setFragmentBuffer(Buffer* buffer,
-                               VertexBufferLocation const& loc) override {}
+        void setFragmentBuffer(Buffer*, VertexBufferLocation const&) override {}
         void setTexture(Texture* texture) override;
         void setViewport(Viewport viewport) override;
         void draw(int vertex_start, int vertex_count) override;
@@ -235,7 +234,7 @@ namespace spargel::gpu {
         void setBuffer(Buffer* buffer,
                        VertexBufferLocation const& loc) override;
         void dispatch(DispatchSize grid_size, DispatchSize group_size) override;
-        void useBuffer(Buffer* buffer, BufferAccess access) override {}
+        void useBuffer(Buffer*, BufferAccess) override {}
 
     private:
         // DeviceVulkan* _device;
@@ -262,6 +261,7 @@ namespace spargel::gpu {
                         ComputePipeline2Vulkan* pipeline, u32 id);
 
         void setBuffer(u32 id, Buffer* buffer) override;
+        void setBuffer(base::StringView, Buffer*) override {}
 
         auto getDescriptorSet() const { return _set; }
 
@@ -292,7 +292,8 @@ namespace spargel::gpu {
 
     class ComputePipeline2Vulkan final : public ComputePipeline2 {
     public:
-        ComputePipeline2Vulkan(DeviceVulkan* device, ShaderFunction compute,
+        ComputePipeline2Vulkan(DeviceVulkan* device, ShaderLibrary* library,
+                               char const* entry,
                                base::span<PipelineArgumentGroup> groups);
 
         auto layout() const { return _layout; }
@@ -316,17 +317,17 @@ namespace spargel::gpu {
         void createDescriptorSetLayouts(
             base::span<PipelineArgumentGroup> groups);
         void createPipelineLayout();
-        void createPipeline(ShaderFunction compute);
+        void createPipeline(ShaderLibrary* library, char const* entry);
 
         DeviceVulkan* _device;
         VulkanProcTable const* _procs;
 
-        base::vector<ArgumentGroupInfoVulkan> _groups;
-        base::vector<ArgumentInfoVulkan> _args;
+        base::Vector<ArgumentGroupInfoVulkan> _groups;
+        base::Vector<ArgumentInfoVulkan> _args;
 
-        base::vector<VkDescriptorSetLayoutBinding> _bindings;
+        base::Vector<VkDescriptorSetLayoutBinding> _bindings;
 
-        base::vector<VkDescriptorSetLayout> _dset_layouts;
+        base::Vector<VkDescriptorSetLayout> _dset_layouts;
 
         VkPipelineLayout _layout;
         VkPipeline _pipeline;
@@ -405,44 +406,51 @@ namespace spargel::gpu {
         ~DeviceVulkan() override;
 
         // Device
-        ShaderLibrary* createShaderLibrary(base::span<u8> bytes) override;
-        void destroyShaderLibrary(ShaderLibrary* library) override;
-        RenderPipeline* createRenderPipeline(
-            RenderPipelineDescriptor const& descriptor) override;
-        void destroyRenderPipeline(RenderPipeline* pipeline) override;
-        Buffer* createBuffer(BufferUsage usage, base::span<u8> bytes) override;
-        Buffer* createBuffer(BufferUsage usage, u32 size) override;
-        void destroyBuffer(Buffer* b) override;
-        Surface* createSurface(ui::Window* w) override;
-        Texture* createTexture(u32 width, u32 height) override;
-        void destroyTexture(Texture* texture) override;
         CommandQueue* createCommandQueue() override;
         void destroyCommandQueue(CommandQueue* q) override;
-        ComputePipeline* createComputePipeline(
-            ShaderFunction func, base::span<BindGroupLayout*> layouts) override;
+        CommandBuffer* createCommandBuffer() override { return nullptr; }
+        void destroyCommandBuffer(CommandBuffer*) override {}
+        ShaderLibrary* createShaderLibrary(base::span<u8> bytes) override;
+        void destroyShaderLibrary(ShaderLibrary* library) override;
+        ShaderFunction* createShaderFunction(base::StringView) override {
+            return nullptr;
+        }
+        void destroyShaderFunction(ShaderFunction*) override {}
+        RenderPipeline* createRenderPipeline(
+            RenderPipelineDescriptor const& descriptor) override;
+        RenderPipeline2* createRenderPipeline2(
+            RenderPipeline2Descriptor const&) override {
+            return nullptr;
+        }
+        void destroyRenderPipeline(RenderPipeline* pipeline) override;
+        // ComputePipeline* createComputePipeline(
+        //     ShaderFunction func, base::span<BindGroupLayout*> layouts)
+        //     override;
+        ComputePipeline2* createComputePipeline2(
+            ComputePipeline2Descriptor const&) override {
+            return nullptr;
+            // return make_object<ComputePipeline2Vulkan>(this, desc.compute,
+            //                                            desc.groups);
+        }
 
         BindGroupLayout* createBindGroupLayout(
             ShaderStage stage, base::span<BindEntry> entries) override;
-        BindGroup* createBindGroup(BindGroupLayout* layout) override {
+
+        BindGroup* createBindGroup(BindGroupLayout*) override {
+            return nullptr;
+        }
+        BindGroup* createBindGroup(ComputePipeline2* p, u32 id) override;
+        BindGroup* createBindGroup(RenderPipeline2*, u32) override {
             return nullptr;
         }
 
-        ComputePipeline2* createComputePipeline2(
-            ComputePipeline2Descriptor const& desc) override {
-            return make_object<ComputePipeline2Vulkan>(this, desc.compute,
-                                                       desc.groups);
-        }
-
-        BindGroup* createBindGroup2(ComputePipeline2* p, u32 id) override;
-
-        RenderPipeline2* createRenderPipeline2(
-            RenderPipeline2Descriptor const& desc) override {
-            return nullptr;
-        }
-
-        BindGroup* createBindGroup2(RenderPipeline2* p, u32 id) override {
-            return nullptr;
-        }
+        Buffer* createBuffer(BufferUsage usage, base::span<u8> bytes) override;
+        Buffer* createBuffer(BufferUsage usage, u32 size) override;
+        void destroyBuffer(Buffer* b) override;
+        // Surface* createSurface(ui::Window* w) override;
+        Texture* createTexture(u32 width, u32 height) override;
+        Texture* createMonochromeTexture(u32, u32) override { return nullptr; }
+        void destroyTexture(Texture* texture) override;
 
         auto device() const { return _device; }
         u32 getQueueFamilyIndex() const { return _queue_family_index; }

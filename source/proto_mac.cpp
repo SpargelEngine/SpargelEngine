@@ -1,17 +1,16 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <CoreText/CoreText.h>
 
+#include "spargel/cocoa/display_modes.h"
+
+using namespace spargel;
+
 int main() {
-    auto modes = CGDisplayCopyAllDisplayModes(CGMainDisplayID(), nullptr);
-    CFArrayApplyFunction(
-        modes, CFRangeMake(0, CFArrayGetCount(modes)),
-        [](const void* value, void*) {
-            auto mode = (CGDisplayModeRef)value;
-            auto width = CGDisplayModeGetWidth(mode);
-            auto height = CGDisplayModeGetHeight(mode);
-            printf("mode: %zu x %zu\n", width, height);
-        },
-        nullptr);
+    base::Vector<cocoa::DisplayMode> modes;
+    cocoa::DisplayMode::query(modes);
+    for (auto const& mode : modes) {
+        printf("mode: %zu x %zu\n", mode.width, mode.height);
+    }
     return 0;
 
     CFDictionaryRef trait_dict = [] {

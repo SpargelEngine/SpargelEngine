@@ -1,0 +1,4 @@
+declare_args() {
+    enable_vulkan = false
+    vulkan_sdk = ""
+}

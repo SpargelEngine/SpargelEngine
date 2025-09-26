@@ -31,22 +31,49 @@ namespace spargel::deflate {
     void DeflateDecompressor::decompress(base::Span<base::Byte> input,
                                          base::Vector<base::Byte>& out) {
         stream_ = BitStream(input.begin(), input.end());
-        // while (true) {
-        // TODO
-        decompressBlock(out);
-        // }
+        while (true) {
+            // TODO
+            auto final_block = decompressBlock(out);
+            if (final_block) {
+                break;
+            }
+        }
     }
-    void DeflateDecompressor::decompressBlock(base::Vector<base::Byte>& out) {
+    bool DeflateDecompressor::decompressBlock(base::Vector<base::Byte>& out) {
         stream_.refill();
-        [[maybe_unused]]
         u8 final_block = stream_.bit0();
         auto block_type = bitsToBlockType(stream_.bit21());
         stream_.advanceBits(3);
-        if (block_type == BlockType::NoCompression) {
+        switch (block_type) {
+        case BlockType::NoCompression:
             plainBlock(out);
-            return;
+            break;
+        case BlockType::FixedHuffman:
+            fixedBlock(out);
+            break;
+        case BlockType::DynamicHuffman:
+            break;
         }
-        // TODO
+        return final_block;
+    }
+    void DeflateDecompressor::fixedBlock(base::Vector<base::Byte>& out) {
+        // [RFC1951, Section 3.2.6]
+        //
+        // Fill the literal/length alphabet.
+        //
+        for (int i = 0; i < 144; i++) {
+            litlen_symbols_length_[i] = 8;
+        }
+        for (int i = 144; i < 256; i++) {
+            litlen_symbols_length_[i] = 9;
+        }
+        for (int i = 256; i < 280; i++) {
+            litlen_symbols_length_[i] = 7;
+        }
+        for (int i = 280; i < 288; i++) {
+            litlen_symbols_length_[i] = 8;
+        }
+        (void)out;
     }
     void DeflateDecompressor::plainBlock(base::Vector<base::Byte>& out) {
         stream_.alignToBoundary();

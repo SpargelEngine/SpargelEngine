@@ -1,0 +1,14 @@
+source_set("cocoa") {
+    public = [
+        "display_modes.h",
+    ]
+    sources = [
+        "display_modes.cpp",
+    ]
+    deps = [
+        "//source/spargel/base",
+    ]
+    frameworks = [
+        "CoreGraphics.framework",
+    ]
+}

@@ -3,8 +3,6 @@ import("//gn/autoconfig.gni")
 autoconfig("autoconfig_h") {
     header = "autoconfig.h"
 
-    enable_metal = is_macos
-
     flags = [
         "SPARGEL_IS_ANDROID=0",
         "SPARGEL_IS_EMSCRIPTEN=0",
@@ -17,9 +15,7 @@ autoconfig("autoconfig_h") {
         "SPARGEL_USE_FILE_MMAP=1",
         "SPARGEL_ENABLE_TRACING=0",
 
-        "SPARGEL_ENABLE_METAL=$enable_metal",
         "SPARGEL_ENABLE_OPENGL=0",
-        "SPARGEL_GPU_ENABLE_VULKAN=0",
     ]
 }
 
@@ -30,6 +26,7 @@ source_set("config") {
 source_set("spargel") {
     deps = [
         "//source/spargel/base",
+        "//source/spargel/cocoa",
         "//source/spargel/codec",
         "//source/spargel/deflate",
         # TODO: Rewrite ECS.
@@ -38,6 +35,7 @@ source_set("spargel") {
         "//source/spargel/gpu",
         "//source/spargel/input",
         "//source/spargel/json",
+        "//source/spargel/lang",
         "//source/spargel/logging",
         "//source/spargel/math",
         "//source/spargel/render",

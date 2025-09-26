@@ -1,9 +1,11 @@
 if (is_macos) {
     executable("proto_mac") {
         sources = [ "proto_mac.cpp" ]
+        deps = [
+            "//source/spargel/cocoa",
+        ]
         frameworks = [
             "CoreFoundation.framework",
-            "CoreGraphics.framework",
             "CoreText.framework",
         ]
     }

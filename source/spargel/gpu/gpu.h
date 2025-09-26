@@ -1,11 +1,9 @@
 #pragma once
 
 #include "spargel/base/functional.h"
-#include "spargel/base/hash_map.h"
 #include "spargel/base/span.h"
 #include "spargel/base/types.h"
 #include "spargel/base/unique_ptr.h"
-#include "spargel/base/vector.h"
 #include "spargel/codec/codec.h"
 
 // Forward declarations.
@@ -459,7 +457,7 @@ namespace spargel::gpu {
     // A logical GPU device.
     class Device {
     public:
-        static base::UniquePtr<Device> create();
+        static base::UniquePtr<Device> create(DeviceKind kind);
 
         virtual ~Device() = default;
 

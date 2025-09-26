@@ -1,6 +1,8 @@
-executable("driver") {
+source_set("lang") {
+    public = [
+        "parser.h",
+    ]
     sources = [
-        "main.cpp",
         "lexer.cpp",
         "parser.cpp",
         "syntax_kind.cpp",
@@ -9,6 +11,16 @@ executable("driver") {
         "token_kind.cpp",
     ]
     deps = [
+        "//source/spargel/base",
+    ]
+}
+
+executable("driver") {
+    sources = [
+        "main.cpp",
+    ]
+    deps = [
+        ":lang",
         "//source/spargel/base",
     ]
 }

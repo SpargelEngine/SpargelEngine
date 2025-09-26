@@ -1,13 +1,12 @@
 #include "spargel/gpu/gpu_vulkan.h"
 
 #include "spargel/base/assert.h"
-#include "spargel/base/object.h"
+#include "spargel/base/checked_convert.h"
 #include "spargel/base/platform.h"
 #include "spargel/base/types.h"
 #include "spargel/base/vector.h"
 #include "spargel/config.h"
 #include "spargel/logging/logging.h"
-#include "spargel/ui/window.h"
 
 // libc
 #include <stdio.h>
@@ -27,10 +26,16 @@ namespace spargel::gpu {
 
     namespace {
 
+        template <typename T, typename... Args>
+        T* make_object(Args&&... args) {
+            return new T(base::forward<Args>(args)...);
+        }
+
         VKAPI_ATTR VkBool32 VKAPI_CALL onDebugUtilsMessage(
             VkDebugUtilsMessageSeverityFlagBitsEXT severity,
-            VkDebugUtilsMessageTypeFlagsEXT type,
-            VkDebugUtilsMessengerCallbackDataEXT const* data, void* user_data) {
+            [[maybe_unused]] VkDebugUtilsMessageTypeFlagsEXT type,
+            VkDebugUtilsMessengerCallbackDataEXT const* data,
+            [[maybe_unused]] void* user_data) {
             fprintf(stderr, "validator: %s\n", data->pMessage);
             if (severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
                 spargel_panic_here();
@@ -320,12 +325,12 @@ namespace spargel::gpu {
 
         DeviceVulkan* _ctx;
         VulkanProcTable const* _procs;
-        base::vector<VkLayerProperties> _layers;
-        base::vector<VkExtensionProperties> _exts;
-        base::vector<LayerRequest> _want_layers;
-        base::vector<ExtensionRequest> _want_exts;
-        base::vector<char const*> _use_layers;
-        base::vector<char const*> _use_exts;
+        base::Vector<VkLayerProperties> _layers;
+        base::Vector<VkExtensionProperties> _exts;
+        base::Vector<LayerRequest> _want_layers;
+        base::Vector<ExtensionRequest> _want_exts;
+        base::Vector<char const*> _use_layers;
+        base::Vector<char const*> _use_exts;
         bool _has_portability_enumeration = false;
         VkInstance _instance;
     };
@@ -416,9 +421,9 @@ namespace spargel::gpu {
         VkInstance _instance;
         // number of physical devices
         usize _count;
-        base::vector<VkPhysicalDevice> _physical_devices;
-        base::vector<VkPhysicalDeviceProperties> _physical_device_properties;
-        base::vector<VkPhysicalDeviceFeatures> _physical_device_features;
+        base::Vector<VkPhysicalDevice> _physical_devices;
+        base::Vector<VkPhysicalDeviceProperties> _physical_device_properties;
+        base::Vector<VkPhysicalDeviceFeatures> _physical_device_features;
         usize _index = 0;
     };
 
@@ -594,11 +599,11 @@ namespace spargel::gpu {
         VkInstance _instance;
         VkPhysicalDevice _physical_device;
 
-        base::vector<VkExtensionProperties> _exts;
-        base::vector<ExtensionRequest> _want_exts;
-        base::vector<char const*> _use_exts;
+        base::Vector<VkExtensionProperties> _exts;
+        base::Vector<ExtensionRequest> _want_exts;
+        base::Vector<char const*> _use_exts;
 
-        base::vector<VkQueueFamilyProperties> _queue_families;
+        base::Vector<VkQueueFamilyProperties> _queue_families;
 
         VkDeviceQueueCreateInfo _queue_infos[4];
         u32 _queue_info_count = 0;
@@ -608,7 +613,7 @@ namespace spargel::gpu {
         VkDevice _device;
     };
 
-    DeviceVulkan::DeviceVulkan() : Device(DeviceKind::vulkan), _dalloc(this) {
+    DeviceVulkan::DeviceVulkan() : _dalloc(this) {
         _library = base::open_dynamic_library(vulkan_library_name);
         if (_library == nullptr) {
             spargel_log_fatal("Cannot load the Vulkan loader.");
@@ -806,7 +811,7 @@ namespace spargel::gpu {
     }
 
     RenderPipeline* DeviceVulkan::createRenderPipeline(
-        RenderPipelineDescriptor const& descriptor) {
+        [[maybe_unused]] RenderPipelineDescriptor const& descriptor) {
         return nullptr;
     }
 
@@ -844,7 +849,7 @@ namespace spargel::gpu {
 
     Buffer* DeviceVulkan::createBuffer(BufferUsage usage,
                                        base::span<u8> bytes) {
-        auto b = createBuffer(usage, bytes.count());
+        auto b = createBuffer(usage, base::checkedConvert<u32>(bytes.count()));
         auto addr = b->mapAddr();
         memcpy(addr, bytes.data(), bytes.count());
         return b;
@@ -885,74 +890,76 @@ namespace spargel::gpu {
         return make_object<BufferVulkan>(this, buffer, offset, size);
     }
 
-    Surface* DeviceVulkan::createSurface(ui::Window* w) { return nullptr; }
+    // Surface* DeviceVulkan::createSurface(ui::Window* w) { return nullptr; }
 
-    Texture* DeviceVulkan::createTexture(u32 width, u32 height) {
+    Texture* DeviceVulkan::createTexture([[maybe_unused]] u32 width,
+                                         [[maybe_unused]] u32 height) {
         return nullptr;
     }
 
-    void DeviceVulkan::destroyTexture(Texture* texture) {}
+    void DeviceVulkan::destroyTexture([[maybe_unused]] Texture* texture) {}
 
-    void DeviceVulkan::destroyShaderLibrary(ShaderLibrary* library) {}
+    void DeviceVulkan::destroyShaderLibrary(
+        [[maybe_unused]] ShaderLibrary* library) {}
 
-    void DeviceVulkan::destroyRenderPipeline(RenderPipeline* pipeline) {}
+    void DeviceVulkan::destroyRenderPipeline(
+        [[maybe_unused]] RenderPipeline* pipeline) {}
 
-    void DeviceVulkan::destroyBuffer(Buffer* b) {}
+    void DeviceVulkan::destroyBuffer([[maybe_unused]] Buffer* b) {}
 
     CommandQueue* DeviceVulkan::createCommandQueue() {
         return make_object<CommandQueueVulkan>(_queue, this);
     }
 
-    void DeviceVulkan::destroyCommandQueue(CommandQueue* q) {}
+    void DeviceVulkan::destroyCommandQueue([[maybe_unused]] CommandQueue* q) {}
 
-    ComputePipeline* DeviceVulkan::createComputePipeline(
-        ShaderFunction func, base::span<BindGroupLayout*> layouts) {
-        base::vector<VkDescriptorSetLayout> set_layouts;
-        set_layouts.reserve(layouts.count());
-        set_layouts.set_count(layouts.count());
-        for (usize i = 0; i < layouts.count(); i++) {
-            set_layouts[i] = layouts[i].cast<BindGroupLayoutVulkan>()->layout();
-        }
+    // ComputePipeline* DeviceVulkan::createComputePipeline(
+    //     ShaderFunction func, base::span<BindGroupLayout*> layouts) {
+    //     base::vector<VkDescriptorSetLayout> set_layouts;
+    //     set_layouts.reserve(layouts.count());
+    //     set_layouts.set_count(layouts.count());
+    //     for (usize i = 0; i < layouts.count(); i++) {
+    //         set_layouts[i] =
+    //         layouts[i].cast<BindGroupLayoutVulkan>()->layout();
+    //     }
 
-        VkPipelineLayoutCreateInfo layout_info;
-        layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        layout_info.pNext = nullptr;
-        layout_info.flags = 0;
-        layout_info.setLayoutCount = (u32)set_layouts.count();
-        layout_info.pSetLayouts = set_layouts.data();
-        layout_info.pushConstantRangeCount = 0;
-        layout_info.pPushConstantRanges = nullptr;
+    //     VkPipelineLayoutCreateInfo layout_info;
+    //     layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    //     layout_info.pNext = nullptr;
+    //     layout_info.flags = 0;
+    //     layout_info.setLayoutCount = (u32)set_layouts.count();
+    //     layout_info.pSetLayouts = set_layouts.data();
+    //     layout_info.pushConstantRangeCount = 0;
+    //     layout_info.pPushConstantRanges = nullptr;
 
-        VkPipelineLayout layout;
-        CHECK_VK_RESULT(_procs.vkCreatePipelineLayout(_device, &layout_info,
-                                                      nullptr, &layout));
+    //     VkPipelineLayout layout;
+    //     CHECK_VK_RESULT(_procs.vkCreatePipelineLayout(_device, &layout_info,
+    //                                                   nullptr, &layout));
 
-        VkComputePipelineCreateInfo info;
-        info.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-        info.pNext = nullptr;
-        info.flags = 0;
-        info.stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        info.stage.pNext = nullptr;
-        info.stage.flags = 0;
-        info.stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-        info.stage.module = func.library.cast<ShaderLibraryVulkan>()->library();
-        info.stage.pName = func.entry;
-        info.stage.pSpecializationInfo = nullptr;
-        info.layout = layout;
-        info.basePipelineHandle = VK_NULL_HANDLE;
-        info.basePipelineIndex = 0;
+    //     VkComputePipelineCreateInfo info;
+    //     info.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    //     info.pNext = nullptr;
+    //     info.flags = 0;
+    //     info.stage.sType =
+    //     VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO; info.stage.pNext
+    //     = nullptr; info.stage.flags = 0; info.stage.stage =
+    //     VK_SHADER_STAGE_COMPUTE_BIT; info.stage.module =
+    //     func.library.cast<ShaderLibraryVulkan>()->library(); info.stage.pName
+    //     = func.entry; info.stage.pSpecializationInfo = nullptr; info.layout =
+    //     layout; info.basePipelineHandle = VK_NULL_HANDLE;
+    //     info.basePipelineIndex = 0;
 
-        VkPipeline pipeline;
-        CHECK_VK_RESULT(_procs.vkCreateComputePipelines(
-            _device, /* cache = */ VK_NULL_HANDLE, 1, &info, nullptr,
-            &pipeline));
-        return make_object<ComputePipelineVulkan>(pipeline, layout);
-    }
+    //     VkPipeline pipeline;
+    //     CHECK_VK_RESULT(_procs.vkCreateComputePipelines(
+    //         _device, /* cache = */ VK_NULL_HANDLE, 1, &info, nullptr,
+    //         &pipeline));
+    //     return make_object<ComputePipelineVulkan>(pipeline, layout);
+    // }
 
     BindGroupLayout* DeviceVulkan::createBindGroupLayout(
         ShaderStage stage, base::span<BindEntry> entries) {
         auto stage_flag = translateShaderStage(stage);
-        base::vector<VkDescriptorSetLayoutBinding> bindings;
+        base::Vector<VkDescriptorSetLayoutBinding> bindings;
         bindings.reserve(entries.count());
         bindings.set_count(entries.count());
         for (usize i = 0; i < entries.count(); i++) {
@@ -969,7 +976,7 @@ namespace spargel::gpu {
         info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         info.pNext = nullptr;
         info.flags = 0;
-        info.bindingCount = bindings.count();
+        info.bindingCount = base::checkedConvert<u32>(bindings.count());
         info.pBindings = bindings.data();
 
         VkDescriptorSetLayout layout;
@@ -1047,19 +1054,21 @@ namespace spargel::gpu {
     }
 
     RenderPassEncoder* CommandBufferVulkan::beginRenderPass(
-        RenderPassDescriptor const& descriptor) {
+        [[maybe_unused]] RenderPassDescriptor const& descriptor) {
         return nullptr;
     }
 
-    void CommandBufferVulkan::endRenderPass(RenderPassEncoder* encoder) {}
+    void CommandBufferVulkan::endRenderPass(
+        [[maybe_unused]] RenderPassEncoder* encoder) {}
 
     ComputePassEncoder* CommandBufferVulkan::beginComputePass() {
         return make_object<ComputePassEncoderVulkan>(_device, _cmdbuf);
     }
 
-    void CommandBufferVulkan::endComputePass(ComputePassEncoder* encoder) {}
+    void CommandBufferVulkan::endComputePass(
+        [[maybe_unused]] ComputePassEncoder* encoder) {}
 
-    void CommandBufferVulkan::present(Surface* surface) {}
+    // void CommandBufferVulkan::present(Surface* surface) {}
 
     void CommandBufferVulkan::submit() {
         endCommandBuffer();
@@ -1117,72 +1126,74 @@ namespace spargel::gpu {
         ComputePipeline* pipeline) {
         _procs->vkCmdBindPipeline(
             _cmdbuf, VK_PIPELINE_BIND_POINT_COMPUTE,
-            pipeline.cast<ComputePipelineVulkan>()->pipeline());
+            static_cast<ComputePipelineVulkan*>(pipeline)->pipeline());
     }
 
     ComputePipeline2Vulkan::ComputePipeline2Vulkan(
-        DeviceVulkan* device, ShaderFunction compute,
+        DeviceVulkan* device, ShaderLibrary* library, char const* entry,
         base::span<PipelineArgumentGroup> groups)
         : _device{device}, _procs{device->getProcTable()} {
         createDescriptorSetLayouts(groups);
         createPipelineLayout();
-        createPipeline(compute);
+        createPipeline(library, entry);
     }
 
     void ComputePipeline2Vulkan::createDescriptorSetLayouts(
-        base::span<PipelineArgumentGroup> groups) {
-        VkDescriptorSetLayoutCreateInfo info;
-        info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        info.pNext = nullptr;
-        info.flags = 0;
+        [[maybe_unused]] base::span<PipelineArgumentGroup> groups) {
+        // TODO
+        // VkDescriptorSetLayoutCreateInfo info;
+        // info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        // info.pNext = nullptr;
+        // info.flags = 0;
 
-        base::vector<VkDescriptorSetLayoutBinding> bindings;
+        // base::Vector<VkDescriptorSetLayoutBinding> bindings;
 
-        // validate shader stage
-        for (usize i = 0; i < groups.count(); i++) {
-            auto const& group = groups[i];
-            spargel_assert(group.stage == ShaderStage::compute);
-        }
+        // // validate shader stage
+        // // for (usize i = 0; i < groups.count(); i++) {
+        // //     auto const& group = groups[i];
+        // //     spargel_assert(group.stage == ShaderStage::compute);
+        // // }
 
-        u32 max_loc = 0;
-        for (usize i = 0; i < groups.count(); i++) {
-            auto const& group = groups[i];
-            auto id = group.location.vulkan.set_id;
-            _groups.emplace(i, id);
-            if (id > max_loc) {
-                max_loc = id;
-            }
-        }
+        // u32 max_loc = 0;
+        // for (usize i = 0; i < groups.count(); i++) {
+        //     auto const& group = groups[i];
+        //     auto id = group.location.vulkan.set_id;
+        //     _groups.emplace(i, id);
+        //     if (id > max_loc) {
+        //         max_loc = id;
+        //     }
+        // }
 
-        spargel_log_info("max_loc = %u", max_loc);
+        // spargel_log_info("max_loc = %u", max_loc);
 
-        // starting from zero
-        _dset_layouts.reserve(max_loc + 1);
-        _dset_layouts.set_count(max_loc + 1);
+        // // starting from zero
+        // _dset_layouts.reserve(max_loc + 1);
+        // _dset_layouts.set_count(max_loc + 1);
 
-        for (usize i = 0; i < groups.count(); i++) {
-            auto const& group = groups[i];
+        // for (usize i = 0; i < groups.count(); i++) {
+        //     auto const& group = groups[i];
 
-            bindings.clear();
-            for (usize j = 0; j < group.arguments.count(); j++) {
-                auto const& arg = group.arguments[j];
-                bindings.emplace(
-                    /* binding = */ arg.id,
-                    /* descriptorType = */ translateBindEntryKind(arg.kind),
-                    /* descriptorCount = */ 1,
-                    /* stageFlags = */ VK_SHADER_STAGE_COMPUTE_BIT,
-                    /* pImmutableSamplers = */ nullptr);
-                _args.emplace(i, arg.id, arg.kind);
-            }
+        //     bindings.clear();
+        //     for (usize j = 0; j < group.arguments.count(); j++) {
+        //         auto const& arg = group.arguments[j];
+        //         bindings.emplace(
+        //             /* binding = */ arg.id,
+        //             /* descriptorType = */ translateBindEntryKind(arg.kind),
+        //             /* descriptorCount = */ u32(1),
+        //             /* stageFlags = */ VK_SHADER_STAGE_COMPUTE_BIT,
+        //             /* pImmutableSamplers = */ nullptr);
+        //         _args.emplace(base::checkedConvert<u32>(i), arg.id,
+        //         arg.kind);
+        //     }
 
-            info.bindingCount = (u32)bindings.count();
-            info.pBindings = bindings.data();
+        //     info.bindingCount = (u32)bindings.count();
+        //     info.pBindings = bindings.data();
 
-            VkDescriptorSetLayout layout;
-            CHECK_VK_RESULT(_procs->vkCreateDescriptorSetLayout(
-                _device->device(), &info, nullptr, &layout));
-            _dset_layouts[group.location.vulkan.set_id] = layout;
-        }
+        //     VkDescriptorSetLayout layout;
+        //     CHECK_VK_RESULT(_procs->vkCreateDescriptorSetLayout(
+        //         _device->device(), &info, nullptr, &layout));
+        //     _dset_layouts[group.location.vulkan.set_id] = layout;
+        // }
     }
 
     void ComputePipeline2Vulkan::createPipelineLayout() {
@@ -1200,7 +1211,8 @@ namespace spargel::gpu {
         spargel_log_info("pipeline layout created");
     }
 
-    void ComputePipeline2Vulkan::createPipeline(ShaderFunction compute) {
+    void ComputePipeline2Vulkan::createPipeline(ShaderLibrary* library,
+                                                char const* entry) {
         VkComputePipelineCreateInfo info;
         info.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
         info.pNext = nullptr;
@@ -1210,8 +1222,8 @@ namespace spargel::gpu {
         info.stage.flags = 0;
         info.stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
         info.stage.module =
-            compute.library.cast<ShaderLibraryVulkan>()->library();
-        info.stage.pName = compute.entry;
+            static_cast<ShaderLibraryVulkan*>(library)->library();
+        info.stage.pName = entry;
         info.stage.pSpecializationInfo = nullptr;
         info.layout = _layout;
         info.basePipelineHandle = VK_NULL_HANDLE;
@@ -1222,8 +1234,8 @@ namespace spargel::gpu {
             /* createInfoCount = */ 1, &info, nullptr, &_pipeline));
     }
 
-    BindGroup* DeviceVulkan::createBindGroup2(ComputePipeline2* p, u32 id) {
-        return p.cast<ComputePipeline2Vulkan>()->createBindGroup2(id);
+    BindGroup* DeviceVulkan::createBindGroup(ComputePipeline2* p, u32 id) {
+        return static_cast<ComputePipeline2Vulkan*>(p)->createBindGroup2(id);
     }
 
     BindGroupVulkan* ComputePipeline2Vulkan::createBindGroup2(u32 id) {
@@ -1263,7 +1275,7 @@ namespace spargel::gpu {
     // section.
     //
     void ComputePassEncoderVulkan::setBindGroup(u32 index, BindGroup* g) {
-        auto group = g.cast<BindGroupVulkan>();
+        auto group = static_cast<BindGroupVulkan*>(g);
         VkDescriptorSet sets[1] = {group->getDescriptorSet()};
         // TODO: where to get pipeline layout
         _procs->vkCmdBindDescriptorSets(_cmdbuf, VK_PIPELINE_BIND_POINT_COMPUTE,
@@ -1271,18 +1283,19 @@ namespace spargel::gpu {
                                         sets, 0, nullptr);
     }
 
-    void ComputePassEncoderVulkan::setBuffer(Buffer* buffer,
-                                             VertexBufferLocation const& loc) {}
+    void ComputePassEncoderVulkan::setBuffer(
+        [[maybe_unused]] Buffer* buffer,
+        [[maybe_unused]] VertexBufferLocation const& loc) {}
 
     void ComputePassEncoderVulkan::setComputePipeline2(
         ComputePipeline2* pipeline) {
         _procs->vkCmdBindPipeline(
             _cmdbuf, VK_PIPELINE_BIND_POINT_COMPUTE,
-            pipeline.cast<ComputePipeline2Vulkan>()->pipeline());
+            static_cast<ComputePipeline2Vulkan*>(pipeline)->pipeline());
     }
 
-    void ComputePassEncoderVulkan::dispatch(DispatchSize grid_size,
-                                            DispatchSize group_size) {
+    void ComputePassEncoderVulkan::dispatch(
+        DispatchSize grid_size, [[maybe_unused]] DispatchSize group_size) {
         _procs->vkCmdDispatch(_cmdbuf, grid_size.x, grid_size.y, grid_size.z);
     }
 
@@ -1309,7 +1322,7 @@ namespace spargel::gpu {
 
     void BindGroupVulkan::setBuffer(u32 id, Buffer* buffer) {
         VkDescriptorBufferInfo info;
-        info.buffer = buffer.cast<BufferVulkan>()->buffer();
+        info.buffer = static_cast<BufferVulkan*>(buffer)->buffer();
         info.offset = 0;
         info.range = VK_WHOLE_SIZE;
 
@@ -1339,7 +1352,7 @@ namespace spargel::gpu {
     }
 
     ShapedDescriptorAllocator::ShapedDescriptorAllocator(
-        DeviceVulkan* device, DescriptorSetShape const& shape)
+        DeviceVulkan* device, [[maybe_unused]] DescriptorSetShape const& shape)
         : _device{device}, _procs{device->getProcTable()} {
         createLayout();
     }
@@ -1948,5 +1961,9 @@ namespace spargel::gpu {
     //                                 texture_id* texture) {
     //     *texture = 0;
     // }
+
+    base::unique_ptr<Device> makeVulkanDevice() {
+        return base::makeUnique<DeviceVulkan>();
+    }
 
 }  // namespace spargel::gpu
