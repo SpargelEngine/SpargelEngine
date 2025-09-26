@@ -1,0 +1,5 @@
+source_set("intrinsic") {
+    public = [
+        "memory.h",
+    ]
+}

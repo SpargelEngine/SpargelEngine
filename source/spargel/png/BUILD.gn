@@ -1,0 +1,19 @@
+source_set("png") {
+    public = [
+        "png_decoder.h",
+    ]
+    deps = [
+        "//source/spargel/base",
+        "//source/spargel/intrinsic",
+    ]
+}
+
+executable("png_info") {
+    sources = [
+        "png_info.cpp",
+    ]
+    deps = [
+        ":png",
+        "//source/spargel/resource",
+    ]
+}
