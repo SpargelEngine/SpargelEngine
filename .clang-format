@@ -1,0 +1,16 @@
+BasedOnStyle: Google
+
+ColumnLimit: 80
+
+IndentWidth: 4
+
+Standard: c++20
+
+AccessModifierOffset: -4
+
+NamespaceIndentation: All
+
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+IndentCaseLabels: false
