@@ -3,6 +3,11 @@
 #include "spargel/base/check.h"
 #include "spargel/base/checked_convert.h"
 #include "spargel/base/enum.h"
+#include "spargel/base/inline_array.h"
+#include "spargel/logging/logging.h"
+
+//
+#include <stdio.h>
 
 namespace spargel::deflate {
     namespace {
@@ -33,30 +38,30 @@ namespace spargel::deflate {
         stream_ = BitStream(input.begin(), input.end());
         while (true) {
             // TODO
-            auto final_block = decompressBlock(out);
+            auto final_block = decompress_block(out);
             if (final_block) {
                 break;
             }
         }
     }
-    bool DeflateDecompressor::decompressBlock(base::Vector<base::Byte>& out) {
+    bool DeflateDecompressor::decompress_block(base::Vector<base::Byte>& out) {
         stream_.refill();
         u8 final_block = stream_.bit0();
         auto block_type = bitsToBlockType(stream_.bit21());
-        stream_.advanceBits(3);
+        stream_.advance_bits(3);
         switch (block_type) {
         case BlockType::NoCompression:
-            plainBlock(out);
+            plain_block(out);
             break;
         case BlockType::FixedHuffman:
-            fixedBlock(out);
+            fixed_block(out);
             break;
         case BlockType::DynamicHuffman:
             break;
         }
         return final_block;
     }
-    void DeflateDecompressor::fixedBlock(base::Vector<base::Byte>& out) {
+    void DeflateDecompressor::fixed_block(base::Vector<base::Byte>& out) {
         // [RFC1951, Section 3.2.6]
         //
         // Fill the literal/length alphabet.
@@ -75,10 +80,10 @@ namespace spargel::deflate {
         }
         (void)out;
     }
-    void DeflateDecompressor::plainBlock(base::Vector<base::Byte>& out) {
-        stream_.alignToBoundary();
-        u16 len = stream_.consumeU16();
-        u16 nlen = stream_.consumeU16();
+    void DeflateDecompressor::plain_block(base::Vector<base::Byte>& out) {
+        stream_.align_to_boundary();
+        u16 len = stream_.consume_u16();
+        u16 nlen = stream_.consume_u16();
         // TODO: Don't panic.
         //
         // NOTE:
@@ -103,7 +108,7 @@ namespace spargel::deflate {
     // left, with fixed-width elements in the correct MSB-to-LSB order and
     // Huffman codes in bit-reversed order (i.e., with the first bit of the
     // code in the relative LSB position).
-    void DeflateDecompressor::BitStream::refill() {
+    void BitStream::refill() {
         while (bits_left_ < CONSUMABLE_BITS) {
             if (next_ == end_) [[unlikely]] {
                 trailing_zero_++;
@@ -114,7 +119,7 @@ namespace spargel::deflate {
             bits_left_ += 8;
         }
     }
-    void DeflateDecompressor::BitStream::alignToBoundary() {
+    void BitStream::align_to_boundary() {
         u8 bytes = bits_left_ >> 3;
         spargel_check(trailing_zero_ <= bytes);
         next_ -= bytes - trailing_zero_;
@@ -122,13 +127,61 @@ namespace spargel::deflate {
         bits_left_ = 0;
         trailing_zero_ = 0;
     }
-    void DeflateDecompressor::BitStream::copy(
-        usize n, base::Vector<base::Byte>& output) {
+    void BitStream::copy(usize n, base::Vector<base::Byte>& output) {
         spargel_check(n <= base::checkedConvert<usize>(end_ - next_));
         output.reserve(output.count() + n);
         memcpy(output.end(), next_, n);
         output.set_count(output.count() + n);
         next_ += n;
+    }
+
+    void DecodeTable::build(base::Span<u32> symbol_length,
+                            u32 max_code_length) {
+        constexpr int MAX_CODE_LENGTH = 15;
+        spargel_check(max_code_length <= MAX_CODE_LENGTH);
+        base::InlineArray<u32, MAX_CODE_LENGTH + 1> len_counts = {};
+        // count the frequency of every lengths
+        for (u32 i = 0; i < symbol_length.count(); i++) {
+            len_counts[symbol_length[i]]++;
+        }
+        while (max_code_length > 1 && len_counts[max_code_length] == 0) {
+            max_code_length--;
+        }
+        table_bits_ = max_code_length;
+
+        u32 used_codespace = 0;
+
+        base::InlineArray<u32, MAX_CODE_LENGTH + 1> offsets = {};
+        offsets[0] = 0;
+        for (u32 len = 1; len <= max_code_length; len++) {
+            offsets[len] = offsets[len - 1] + len_counts[len - 1];
+            used_codespace = (used_codespace << 1) + len_counts[len];
+        }
+
+        printf("offsets: ");
+        for (u32 len = 1; len <= max_code_length; len++) {
+            printf("%d ", offsets[len]);
+        }
+        printf("\n");
+
+        printf("used_codespace: %d\n", used_codespace);
+        printf("max_code_length: %d\n", max_code_length);
+
+        // sort the symbols by (code length, symbol id).
+        //
+        // TODO: Provide the `sorted_syms` from outside, as its size should
+        // match `symbol_length`.
+        base::InlineArray<u32, 100 + 1> sorted_syms = {};
+        for (u32 sym = 0; sym < symbol_length.count(); sym++) {
+            sorted_syms[offsets[symbol_length[sym]]++] = sym;
+        }
+
+        printf("sorted syms: ");
+        for (u32 sym = 0; sym < symbol_length.count(); sym++) {
+            printf("%d ", sorted_syms[sym]);
+        }
+        printf("\n");
+        logging::info("sorted syms: {}", sorted_syms.span());
     }
 
 }  // namespace spargel::deflate

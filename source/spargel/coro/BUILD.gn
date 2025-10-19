@@ -1,0 +1,8 @@
+source_set("coro") {
+    public = [
+        "generator.h",
+    ]
+    deps = [
+        "//source/spargel/core",
+    ]
+}

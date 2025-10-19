@@ -12,6 +12,9 @@ namespace spargel::deflate {
     namespace {
         using namespace base::literals;
         int DeflateMain(base::Vector<base::StringView> const& args) {
+            DecodeTable table;
+            table.build({3, 3, 3, 3, 3, 2, 4, 4}, 4);
+
             if (args.count() == 0) {
                 printf("usage: deflate_demo <file>\n");
                 return 1;

@@ -8,7 +8,14 @@ namespace spargel::math {
     struct Vector2 {
         T x;
         T y;
+
+        T dot(Vector2 const& other) const { return x * other.x + y * other.y; }
+        T length() const { return math::sqrt(dot(*this)); }
     };
+    template <typename T>
+    constexpr Vector2<T> operator-(Vector2<T> lhs, Vector2<T> rhs) {
+        return {lhs.x - rhs.x, lhs.y - rhs.y};
+    }
 
     template <typename T>
     struct Vector3 {

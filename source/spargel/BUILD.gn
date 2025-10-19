@@ -27,6 +27,8 @@ source_set("spargel") {
     deps = [
         "//source/spargel/base",
         "//source/spargel/cocoa",
+        "//source/spargel/core",
+        "//source/spargel/coro",
         "//source/spargel/codec",
         "//source/spargel/deflate",
         # TODO: Rewrite ECS.

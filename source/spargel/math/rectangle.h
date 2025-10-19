@@ -3,13 +3,13 @@
 #include "spargel/math/vector.h"
 
 namespace spargel::math {
-    struct RectangleSize {
+    struct RectSize {
         float width;
         float height;
     };
-    struct Rectangle {
+    struct Rect {
         Vector2f origin;
-        RectangleSize size;
+        RectSize size;
 
         bool contains(Vector2f p) const {
             return (p.x >= origin.x) && (p.y >= origin.y) &&

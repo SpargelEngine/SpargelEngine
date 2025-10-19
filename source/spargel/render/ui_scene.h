@@ -36,17 +36,17 @@ namespace spargel::render {
 
             pushCommand(DrawCommand::set_clip);
             pushData(x, y, w, h);
-            clip_ = math::Rectangle{{x * scale_, y * scale_},
+            clip_ = math::Rect{{x * scale_, y * scale_},
                                     {w * scale_, h * scale_}};
         }
-        void setClip(math::Rectangle rect) {
+        void setClip(math::Rect rect) {
             setClip(rect.origin.x, rect.origin.y, rect.size.width,
                     rect.size.height);
         }
         // Warning: The default clip is zero-sized. So nothing will be rendered.
         void clearClip() {
             pushCommand(DrawCommand::clear_clip);
-            clip_ = math::Rectangle{};
+            clip_ = math::Rect{};
         }
 
         void fillRect(float x, float y, float w, float h, u32 color) {
@@ -135,7 +135,7 @@ namespace spargel::render {
             strokeLine(x + w, y + h, x, y + h, color);
             strokeLine(x, y + h, x, y, color);
         }
-        void strokeRectangle(math::Rectangle rect, u32 color) {
+        void strokeRectangle(math::Rect rect, u32 color) {
             strokeRectangle(rect.origin.x, rect.origin.y, rect.size.width,
                             rect.size.height, color);
         }
@@ -190,7 +190,7 @@ namespace spargel::render {
         struct Command2 {
             DrawCommand cmd;
             // This is float4.
-            alignas(16) math::Rectangle clip;
+            alignas(16) math::Rect clip;
             u32 data[8];
         };
         static_assert(sizeof(Command2) == 64);
@@ -200,7 +200,7 @@ namespace spargel::render {
         }
         void pushDatum(u32 x) { data_.push(x); }
         void pushDatum(float x) {
-            data_.push(base::bitCast<float, u32>(x * scale_));
+            data_.push(base::bit_cast<float, u32>(x * scale_));
         }
         template <typename... Ts>
         void pushData(Ts... ts) {
@@ -213,7 +213,7 @@ namespace spargel::render {
         template <typename... Ts>
         void pushCommand2(DrawCommand cmd, Ts... ts) {
             commands2_.push(
-                Command2{cmd, clip_, {base::bitCast<Ts, u32>(ts)...}});
+                Command2{cmd, clip_, {base::bit_cast<Ts, u32>(ts)...}});
         }
 
         math::Vector2f currentTransform() const {
@@ -225,7 +225,7 @@ namespace spargel::render {
         base::Vector<u8> commands_;
         base::Vector<u32> data_;
 
-        math::Rectangle clip_;
+        math::Rect clip_;
         base::Vector<Command2> commands2_;
 
         base::Vector<math::Vector2f> transform_stack_;

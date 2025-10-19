@@ -51,21 +51,21 @@ namespace spargel::logging {
         public:
             constexpr LogFormat(
                 char const* s,
-                base::source_location loc = base::source_location::current())
+                base::SourceLocation loc = base::SourceLocation::current())
                 : fmt_{s}, loc_{loc} {}
 
             constexpr base::detail::FormatString format() const { return fmt_; }
-            constexpr base::source_location location() const { return loc_; }
+            constexpr base::SourceLocation location() const { return loc_; }
 
         private:
             base::detail::FormatString fmt_;
-            base::source_location loc_;
+            base::SourceLocation loc_;
         };
     }  // namespace detail
 
     template <typename... Args>
     void info(detail::LogFormat fmt, Args&&... args) {
-        base::print("[INFO:{}] ", fmt.location()._func);
+        base::print("[INFO:{}] ", fmt.location().func_);
         base::print(fmt.format(), base::forward<Args>(args)...);
         base::print("\n");
     }

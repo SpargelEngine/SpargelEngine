@@ -58,7 +58,7 @@ namespace spargel::text {
 
             auto font =
                 (CTFontRef)CFDictionaryGetValue(attr, kCTFontAttributeName);
-            segment.font = font_manager_->translateFont(font);
+            segment.font = font_manager_->translate_font(font);
 
             glyphs.reserve((usize)count);
             CTRunGetGlyphs(run, CFRangeMake(0, count), glyphs.data());

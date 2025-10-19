@@ -82,7 +82,7 @@ namespace spargel::render {
             friend void tag_invoke(base::tag<base::hash>, base::HashRun& run,
                                    GlyphCacheKey const& self) {
                 run.combine(self.id);
-                run.combine(base::bitCast<text::Font const*, u64>(self.font));
+                run.combine(base::bit_cast<text::Font const*, u64>(self.font));
                 run.combine(self.subpixel);
             }
         };

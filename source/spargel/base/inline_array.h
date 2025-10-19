@@ -27,6 +27,7 @@ namespace spargel::base {
         T const* end() const { return _array + size; }
 
         Span<T> asSpan() const { return Span<T>{_array, _array + size}; }
+        Span<T> span() const { return Span<T>{_array, _array + size}; }
 
         T _array[size];
     };

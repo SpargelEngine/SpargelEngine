@@ -113,9 +113,11 @@ namespace spargel::resource {
         auto real_path = base::CString(_real_path(id));
         int fd = ::open(real_path.data(), O_RDONLY);
         if (fd < 0) {
-            spargel_log_error("requested resource \"%s\" not found (%s)",
-                              base::CString(id.path()).data(),
-                              real_path.data());
+            // One should log in the caller.
+            //
+            // spargel_log_error("requested resource \"%s\" not found (%s)",
+            //                   base::CString(id.path()).data(),
+            //                   real_path.data());
             return base::nullopt;
         }
         struct stat sb;

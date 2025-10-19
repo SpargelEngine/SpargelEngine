@@ -11,7 +11,7 @@ namespace spargel::text {
     base::UniquePtr<FontManager> FontManager::create() {
         return base::makeUnique<FontManagerMac>();
     }
-    FontMac* FontManagerMac::translateFont(CTFontRef font) {
+    FontMac* FontManagerMac::translate_font(CTFontRef font) {
         CoreTextFont key{font};
         auto result = fonts_.get(key);
         if (result) {
@@ -29,7 +29,7 @@ namespace spargel::text {
         }
         auto font = CTFontCreateUIFontForLanguage(kCTFontUIFontSystem,
                                                   DEFAULT_FONT_SIZE, nullptr);
-        default_font_ = translateFont(font);
+        default_font_ = translate_font(font);
         return default_font_;
     }
     Font* FontManagerMac::matchDescriptor(

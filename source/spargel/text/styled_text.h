@@ -40,7 +40,7 @@ namespace spargel::text {
         friend void tag_invoke(base::tag<base::hash>, base::HashRun& run,
                                StyledText const& self) {
             run.combine(self.text_);
-            run.combine(base::bitCast<Font*, u64>(self.font_));
+            run.combine(base::bit_cast<Font*, u64>(self.font_));
         }
 
     private:

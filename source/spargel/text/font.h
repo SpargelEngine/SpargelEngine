@@ -40,7 +40,7 @@ namespace spargel::text {
     // Coordinate unit: point.
     struct GlyphInfo {
         // The bounding box of the glyph.
-        math::Rectangle bounding_box;
+        math::Rect bounding_box;
         // The origin of the next glyph.
         float horizontal_advance;
         // The (signed) distance to the top of the bounding box.

@@ -12,6 +12,7 @@
 #include <CoreText/CoreText.h>
 
 namespace spargel::text {
+    // Warp the handle.
     struct CoreTextFont {
         CTFontRef object;
         friend bool operator==(CoreTextFont lhs, CoreTextFont rhs) {
@@ -19,19 +20,18 @@ namespace spargel::text {
         }
         friend void tag_invoke(base::tag<base::hash>, base::HashRun& run,
                                CoreTextFont font) {
-            run.combine(base::bitCast<CFHashCode, u64>(CFHash(font.object)));
+            run.combine(base::bit_cast<CFHashCode, u64>(CFHash(font.object)));
         }
     };
 
     class FontManagerMac final : public FontManager {
     public:
-        FontMac* translateFont(CTFontRef font);
+        FontMac* translate_font(CTFontRef font);
         base::UniquePtr<Font> createDefaultFont() override { return nullptr; }
         FontMac* defaultFont() override;
         Font* matchDescriptor(FontDescriptor const& descriptor) override;
 
     private:
-        // Warp the handle.
         base::HashMap<CoreTextFont, FontMac*> fonts_;
         FontMac* default_font_ = nullptr;
     };

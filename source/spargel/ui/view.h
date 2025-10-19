@@ -70,10 +70,10 @@ namespace spargel::ui {
         // -----------
 
         // The bounding box in parent's coordinate system.
-        math::Rectangle frame() const { return frame_; }
-        void setFrame(math::Rectangle frame) { frame_ = frame; }
+        math::Rect frame() const { return frame_; }
+        void setFrame(math::Rect frame) { frame_ = frame; }
         void setFrame(float x, float y, float w, float h) {
-            setFrame(math::Rectangle{{x, y}, {w, h}});
+            setFrame(math::Rect{{x, y}, {w, h}});
         }
 
         float width() const { return frame_.size.width; }
@@ -86,8 +86,8 @@ namespace spargel::ui {
         // The layout of the children is determined via a negotiation process.
 
         // How much space this view needs given the proposal.
-        virtual math::RectangleSize getPreferredSize(
-            math::RectangleSize proposal) {
+        virtual math::RectSize getPreferredSize(
+            math::RectSize proposal) {
             return proposal;
         }
         // Put the children at correct places.
@@ -132,7 +132,7 @@ namespace spargel::ui {
         View* parent_ = nullptr;
         base::Vector<View*> children_;
 
-        math::Rectangle frame_;
+        math::Rect frame_;
         // Offset in parent's coordinate.
         // math::Vector2f offset_;
 

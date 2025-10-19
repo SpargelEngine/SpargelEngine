@@ -38,6 +38,10 @@ namespace spargel::base {
         TEST(Print) {
             print("hello{}\n", StringView{" world"});
             print("{}-{}-{}\n", StringView{"a"}, StringView{"b"}, "c");
+            print("{}\n", usize(12345));
+            print("{}\n", usize(0));
+            print("{}\n", usize(1));
+            print("{}\n", usize(12));
         }
     }  // namespace
 }  // namespace spargel::base

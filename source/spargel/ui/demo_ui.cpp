@@ -24,8 +24,8 @@ namespace spargel::ui {
                 invalidateLayout();
                 requestRepaint();
             }
-            math::RectangleSize getPreferredSize(
-                [[maybe_unused]] math::RectangleSize proposal) override {
+            math::RectSize getPreferredSize(
+                [[maybe_unused]] math::RectSize proposal) override {
                 if (!shape_result_) {
                     shape();
                 }
@@ -85,8 +85,8 @@ namespace spargel::ui {
             }
             // NOTE: This is the default implementation. So there is no need for
             // this view.
-            math::RectangleSize getPreferredSize(
-                math::RectangleSize proposal) override {
+            math::RectSize getPreferredSize(
+                math::RectSize proposal) override {
                 return proposal;
             }
             void placeChildren() override {

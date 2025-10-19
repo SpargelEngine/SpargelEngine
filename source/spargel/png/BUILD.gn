@@ -5,6 +5,7 @@ source_set("png") {
     deps = [
         "//source/spargel/base",
         "//source/spargel/intrinsic",
+        "//source/spargel/logging",
     ]
 }
 
@@ -14,6 +15,7 @@ executable("png_info") {
     ]
     deps = [
         ":png",
+        "//source/spargel/logging",
         "//source/spargel/resource",
     ]
 }

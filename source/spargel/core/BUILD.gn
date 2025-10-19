@@ -1,0 +1,5 @@
+source_set("core") {
+    public = [
+        "core.h",
+    ]
+}

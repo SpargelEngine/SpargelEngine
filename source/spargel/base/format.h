@@ -1,5 +1,6 @@
 #pragma once
 
+#include "spargel/base/algorithm.h"
 #include "spargel/base/tag_invoke.h"
 
 namespace spargel::base {
@@ -106,6 +107,29 @@ namespace spargel::base {
                         char const* s) {
             target.append(s, s + __builtin_strlen(s));
         }
+        template <FormatTarget Target>
+        void formatInteger(Target& target, usize n) {
+            if (n == 0) {
+                target.append("0");
+                return;
+            }
+            char buf[21];
+            int i = 0;
+            while (n > 0) {
+                buf[i++] = '0' + n % 10;
+                n /= 10;
+            }
+            buf[i] = '\0';
+            for (int j = 0; j <= i / 2; j++) {
+                swap(buf[j], buf[i - j]);
+            }
+            target.append(buf, buf + i + 1);
+        }
+        template <FormatTarget Target>
+        void tag_invoke(tag<formatArg>, Target& target, detail::FormatString,
+                        usize n) {
+            formatInteger(target, n);
+        }
     }  // namespace format_
 
     template <FormatTarget Target>
@@ -128,6 +152,7 @@ namespace spargel::base {
     namespace detail {
         struct ConsoleTarget {
             void append(char const* begin, char const* end);
+            void append(char const* s) { append(s, s + __builtin_strlen(s)); }
         };
     }  // namespace detail
 
