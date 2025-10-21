@@ -4,6 +4,7 @@
 
 int main() {
     printf("SpargelEditor is under development.\n");
-    auto _ = spargel::runtime::Window::create();
+    auto window = spargel::runtime::Window::create();
+    window->show();
     return 0;
 }

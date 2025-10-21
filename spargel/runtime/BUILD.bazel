@@ -1,10 +1,22 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "objc_library")
+
+filegroup(
+    name = "public_hdrs",
+    srcs = ["window.h"],
+)
 
 cc_library(
     name = "runtime",
-    srcs = [
-        "window.h",
-        "window.cpp",
-    ],
+    hdrs = [":public_hdrs"],
+    srcs = [],
+    deps = select({
+        "@platforms//os:macos": [":window_appkit"],
+    }),
     visibility = ["//visibility:public"],
+)
+
+objc_library(
+    name = "window_appkit",
+    srcs = ["window_appkit.mm"],
+    sdk_frameworks = ["AppKit"],
 )
