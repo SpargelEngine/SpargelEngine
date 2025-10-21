@@ -1,0 +1,10 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+cc_library(
+    name = "runtime",
+    srcs = [
+        "window.h",
+        "window.cpp",
+    ],
+    visibility = ["//visibility:public"],
+)

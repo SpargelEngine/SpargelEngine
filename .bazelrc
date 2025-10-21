@@ -1,0 +1,2 @@
+# user's custom config
+try-import %workspace%/user.bazelrc
