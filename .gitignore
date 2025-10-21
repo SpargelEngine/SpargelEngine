@@ -10,8 +10,9 @@
 compile_commands.json
 
 # bazel
-bazel-*
-user.bazelrc
+/bazel-*
+/user.bazelrc
+/external/
 
 # Mac
 .DS_Store
