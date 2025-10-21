@@ -1,22 +1,30 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary", "objc_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+package_group(
+    name = "packages",
+    packages = ["//spargel/runtime/..."],
+)
 
 filegroup(
     name = "public_hdrs",
-    srcs = ["window.h"],
+    srcs = [
+        "logging.h",
+        "painter.h",
+        "vecmath.h",
+        "window.h",
+    ],
+    visibility = [":packages"],
 )
 
 cc_library(
     name = "runtime",
     hdrs = [":public_hdrs"],
-    srcs = [],
+    srcs = [
+        "logging.cpp",
+        "painter.cpp",
+    ],
     deps = select({
-        "@platforms//os:macos": [":window_appkit"],
+        "@platforms//os:macos": ["//spargel/runtime/macos:runtime_macos"],
     }),
     visibility = ["//visibility:public"],
-)
-
-objc_library(
-    name = "window_appkit",
-    srcs = ["window_appkit.mm"],
-    sdk_frameworks = ["AppKit"],
 )

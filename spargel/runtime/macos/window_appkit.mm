@@ -25,7 +25,7 @@
     NSTrackingArea* tracking_area_;
 }
 - (void)recreateTrackingArea {
-    if (tracking_area_ != nil) {
+    if (tracking_area_) {
         [self removeTrackingArea:tracking_area_];
     }
 
@@ -48,6 +48,9 @@ namespace spargel::runtime {
             init_window();
         }
 
+        void set_title(char const* title) override {
+            ns_window_.title = [NSString stringWithUTF8String:title];
+        }
         void show() override { [NSApp run]; }
 
     private:
@@ -77,7 +80,7 @@ namespace spargel::runtime {
                 [[NSWindow alloc] initWithContentRect:rect
                                             styleMask:style
                                               backing:NSBackingStoreBuffered
-                                                defer:NO
+                                                defer:false
                                                screen:screen];
             [ns_window_ makeKeyAndOrderFront:nullptr];
         }

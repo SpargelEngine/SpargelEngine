@@ -5,6 +5,7 @@ namespace spargel::runtime {
     public:
         static Window* create();
 
+        virtual void set_title(char const* title) = 0;
         virtual void show() = 0;
     };
 }  // namespace spargel::runtime

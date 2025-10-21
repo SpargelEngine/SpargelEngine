@@ -1,10 +1,10 @@
-#include <stdio.h>
-
+#include "spargel/runtime/painter.h"
 #include "spargel/runtime/window.h"
 
 int main() {
-    printf("SpargelEditor is under development.\n");
     auto window = spargel::runtime::Window::create();
+    [[maybe_unused]] auto painter = spargel::runtime::Painter::create();
+    window->set_title("Spargel Editor");
     window->show();
     return 0;
 }

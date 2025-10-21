@@ -1,0 +1,22 @@
+#pragma once
+
+#define LOG_IMPL_(level, ...)                                          \
+    ::spargel::runtime::log_impl(::spargel::runtime::log_level::level, \
+                                 __FILE__, __func__, __LINE__, __VA_ARGS__)
+#define LOG_DEBUG(...) LOG_IMPL_(debug, __VA_ARGS__)
+#define LOG_INFO(...) LOG_IMPL_(info, __VA_ARGS__)
+#define LOG_WARNING(...) LOG_IMPL_(warning, __VA_ARGS__)
+#define LOG_ERROR(...) LOG_IMPL_(error, __VA_ARGS__)
+#define LOG_FATAL(...) LOG_IMPL_(fatal, __VA_ARGS__)
+
+namespace spargel::runtime {
+    enum class log_level {
+        debug,
+        info,
+        warning,
+        error,
+        fatal,
+    };
+    void log_impl(log_level level, char const* file, char const* func,
+                  unsigned int line, char const* msg, ...);
+}  // namespace spargel::runtime
