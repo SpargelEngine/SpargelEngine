@@ -1,6 +1,6 @@
 #pragma once
 
-namespace spargel::runtime {
+namespace spargel::runtime::ui {
     class Window {
     public:
         static Window* create();
@@ -8,4 +8,4 @@ namespace spargel::runtime {
         virtual void set_title(char const* title) = 0;
         virtual void show() = 0;
     };
-}  // namespace spargel::runtime
+}  // namespace spargel::runtime::ui

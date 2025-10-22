@@ -1,7 +1,7 @@
 #import <AppKit/AppKit.h>
 #import <QuartzCore/QuartzCore.h>
 
-#include "spargel/runtime/window.h"
+#include "spargel/runtime/ui/window.h"
 
 @interface SpargelApplicationDelegate : NSObject <NSApplicationDelegate>
 @end
@@ -40,7 +40,7 @@
 }
 @end
 
-namespace spargel::runtime {
+namespace spargel::runtime::ui {
     class WindowAppKit final : public Window {
     public:
         WindowAppKit() {
@@ -91,4 +91,4 @@ namespace spargel::runtime {
     };
 
     Window* Window::create() { return new WindowAppKit; }
-}  // namespace spargel::runtime
+}  // namespace spargel::runtime::ui

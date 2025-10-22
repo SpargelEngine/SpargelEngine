@@ -1,11 +1,11 @@
-#include "spargel/runtime/painter.h"
+#include "spargel/runtime/ui/painter.h"
 
 #import <Metal/Metal.h>
 #import <dispatch/dispatch.h>
 
 #include "spargel/runtime/logging.h"
 
-namespace spargel::runtime {
+namespace spargel::runtime::ui {
     class PainterMetal final : public Painter {
     public:
         PainterMetal() {
@@ -78,4 +78,4 @@ namespace spargel::runtime {
     };
 
     Painter* Painter::create() { return new PainterMetal; }
-}  // namespace spargel::runtime
+}  // namespace spargel::runtime::ui

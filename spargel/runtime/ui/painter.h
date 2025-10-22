@@ -4,7 +4,7 @@
 
 #include "spargel/runtime/vecmath.h"
 
-namespace spargel::runtime {
+namespace spargel::runtime::ui {
     // TODO(tianjiao): support multiple texture
     struct DrawCommand {
         Vec4f clip_rect;
@@ -38,4 +38,4 @@ namespace spargel::runtime {
 
         virtual ~Painter() = default;
     };
-}  // namespace spargel::runtime
+}  // namespace spargel::runtime::ui

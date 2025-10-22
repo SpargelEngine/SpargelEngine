@@ -1,0 +1,36 @@
+load("@rules_cc//cc:defs.bzl", "cc_library", "objc_library")
+
+filegroup(
+    name = "public_hdrs",
+    srcs = [
+        "painter.h",
+        "window.h",
+    ],
+)
+
+cc_library(
+    name = "ui",
+    hdrs = [":public_hdrs"],
+    srcs = [
+        "painter.cpp",
+        "//spargel/runtime:public_hdrs",
+    ],
+    deps = select({
+        "@platforms//os:macos": [":ui_macos"],
+    }),
+    visibility = ["//spargel/runtime:packages"],
+)
+
+objc_library(
+    name = "ui_macos",
+    srcs = [
+        "window_appkit.mm",
+        "painter_metal.mm",
+        ":public_hdrs",
+        "//spargel/runtime:public_hdrs",
+    ],
+    sdk_frameworks = [
+        "AppKit",
+        "Metal",
+    ],
+)

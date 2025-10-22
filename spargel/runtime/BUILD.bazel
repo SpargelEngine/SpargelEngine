@@ -9,9 +9,7 @@ filegroup(
     name = "public_hdrs",
     srcs = [
         "logging.h",
-        "painter.h",
         "vecmath.h",
-        "window.h",
     ],
     visibility = [":packages"],
 )
@@ -21,10 +19,7 @@ cc_library(
     hdrs = [":public_hdrs"],
     srcs = [
         "logging.cpp",
-        "painter.cpp",
     ],
-    deps = select({
-        "@platforms//os:macos": ["//spargel/runtime/macos:runtime_macos"],
-    }),
+    deps = ["//spargel/runtime/ui"],
     visibility = ["//visibility:public"],
 )
