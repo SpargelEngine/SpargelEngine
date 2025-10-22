@@ -103,45 +103,44 @@
 @end
 
 namespace spargel::runtime::ui {
-    void WindowAppKit::set_title(char const* title) {
-        ns_window_.title = [NSString stringWithUTF8String:title];
-    }
+void WindowAppKit::set_title(char const* title) {
+    ns_window_.title = [NSString stringWithUTF8String:title];
+}
 
-    void WindowAppKit::init_app() {
-        ns_app_ = [NSApplication sharedApplication];
-        nsapp_delegate_ = [[SpargelApplicationDelegate alloc] init];
-        ns_app_.delegate = nsapp_delegate_;
-        [ns_app_ setActivationPolicy:NSApplicationActivationPolicyRegular];
-    }
+void WindowAppKit::init_app() {
+    ns_app_ = [NSApplication sharedApplication];
+    nsapp_delegate_ = [[SpargelApplicationDelegate alloc] init];
+    ns_app_.delegate = nsapp_delegate_;
+    [ns_app_ setActivationPolicy:NSApplicationActivationPolicyRegular];
+}
 
-    void WindowAppKit::init_window() {
-        auto width = 500.0;
-        auto height = 500.0;
+void WindowAppKit::init_window() {
+    auto width = 500.0;
+    auto height = 500.0;
 
-        auto screen = [NSScreen mainScreen];
+    auto screen = [NSScreen mainScreen];
 
-        NSWindowStyleMask style =
-            NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable |
-            NSWindowStyleMaskResizable | NSWindowStyleMaskTitled;
+    NSWindowStyleMask style =
+        NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable |
+        NSWindowStyleMaskResizable | NSWindowStyleMaskTitled;
 
-        auto rect = NSMakeRect(0, 0, width, height);
-        // center the window
-        rect.origin.x = (screen.frame.size.width - width) / 2;
-        rect.origin.y = (screen.frame.size.height - height) / 2;
+    auto rect = NSMakeRect(0, 0, width, height);
+    // center the window
+    rect.origin.x = (screen.frame.size.width - width) / 2;
+    rect.origin.y = (screen.frame.size.height - height) / 2;
 
-        ns_window_ =
-            [[NSWindow alloc] initWithContentRect:rect
-                                        styleMask:style
-                                          backing:NSBackingStoreBuffered
-                                            defer:false
-                                           screen:screen];
-        [ns_window_ makeKeyAndOrderFront:nullptr];
+    ns_window_ = [[NSWindow alloc] initWithContentRect:rect
+                                             styleMask:style
+                                               backing:NSBackingStoreBuffered
+                                                 defer:false
+                                                screen:screen];
+    [ns_window_ makeKeyAndOrderFront:nullptr];
 
-        // create metal layer before creating the main view
-        metal_layer_ = [[CAMetalLayer alloc] init];
-        main_view_ = [[SpargelMainView alloc] initWithBridge:this];
-        ns_window_.contentView = main_view_;
-    }
+    // create metal layer before creating the main view
+    metal_layer_ = [[CAMetalLayer alloc] init];
+    main_view_ = [[SpargelMainView alloc] initWithBridge:this];
+    ns_window_.contentView = main_view_;
+}
 
-    Window* Window::create() { return new WindowAppKit; }
+Window* Window::create() { return new WindowAppKit; }
 }  // namespace spargel::runtime::ui

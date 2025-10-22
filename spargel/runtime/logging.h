@@ -10,14 +10,14 @@
 #define LOG_FATAL(...) LOG_IMPL_(fatal, __VA_ARGS__)
 
 namespace spargel::runtime {
-    enum class log_level {
-        debug,
-        info,
-        warning,
-        error,
-        fatal,
-    };
-    void log_impl(log_level level, char const* file, char const* func,
-                  unsigned int line, char const* msg, ...)
-        __attribute__((__format__(__printf__, 5, 6)));
+enum class log_level {
+    debug,
+    info,
+    warning,
+    error,
+    fatal,
+};
+void log_impl(log_level level, char const* file, char const* func,
+              unsigned int line, char const* msg, ...)
+    __attribute__((__format__(__printf__, 5, 6)));
 }  // namespace spargel::runtime

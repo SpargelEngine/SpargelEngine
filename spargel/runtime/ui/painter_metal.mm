@@ -7,21 +7,255 @@
 #include "spargel/runtime/ui/window_appkit.h"
 
 namespace spargel::runtime::ui {
-    class PainterMetal final : public Painter {
+namespace {
+void check_error(NSError* error, char const* msg) {
+    if (error) {
+        auto info = error.localizedDescription;
+        LOG_FATAL("%s:\n%s", msg, info.UTF8String);
+        throw;
+    }
+}
+}  // namespace
+class PainterMetal final : public Painter {
+public:
+    PainterMetal() {
+        device_ = MTLCreateSystemDefaultDevice();
+        queue_ = [device_ newCommandQueue];
+
+        // strategy_ = new TiledSplitStrategy(this);
+        strategy_ = new CompactTileStrategy(this);
+        LOG_INFO("using render strategy: %s", strategy_->name());
+    }
+
+    void render(CommandList const& cmdlist) override {
+        auto drawable = [layer_ nextDrawable];
+        strategy_->render(cmdlist, drawable);
+    }
+
+    void bind_window(Window* window) override {
+        auto appkit_window = static_cast<WindowAppKit*>(window);
+        layer_ = appkit_window->metal_layer();
+        layer_.device = device_;
+        layer_.pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
+    }
+
+private:
+    struct GrowingBuffer {
+        GrowingBuffer(PainterMetal* p) : painter{p} {}
+
+        void request(size_t length) {
+            if (length == 0) {
+                return;
+            }
+            if (!object) {
+                object = painter->create_buffer(length);
+                return;
+            }
+            if (length <= object.length) {
+                return;
+            }
+            object = painter->create_buffer(length);
+        }
+
+        PainterMetal* painter = nullptr;
+        id<MTLBuffer> object = nullptr;
+    };
+
+    class RenderStrategy {
     public:
-        PainterMetal()
-            : scene_commands_buffer_{this},
-              bin_slots_buffer_{this},
-              bin_alloc_buffer_{this} {
-            device_ = MTLCreateSystemDefaultDevice();
-            queue_ = [device_ newCommandQueue];
+        RenderStrategy(PainterMetal* painter, char const* name)
+            : name_{name}, device_{painter->device_}, queue_{painter->queue_} {}
+
+        char const* name() const { return name_; }
+        id<MTLDevice> device() { return device_; }
+        id<MTLCommandQueue> queue() { return queue_; }
+
+        virtual void render(CommandList const& cmdlist,
+                            id<CAMetalDrawable> drawable) = 0;
+
+    private:
+        char const* name_ = nullptr;
+        id<MTLDevice> device_ = nullptr;
+        id<MTLCommandQueue> queue_ = nullptr;
+    };
+
+    class CompactTileStrategy final : public RenderStrategy {
+    public:
+        CompactTileStrategy(PainterMetal* painter)
+            : RenderStrategy{painter, "CompactTileStrategy"} {
             init_pipelines();
         }
 
-        void render(CommandList const& cmdlist) override {
-            auto drawable = [layer_ nextDrawable];
-            auto target = drawable.texture;
+        void render(CommandList const& cmdlist,
+                    id<CAMetalDrawable> drawable) override {
+            throw "not implemented";
+        }
 
+    private:
+        static constexpr char const* SHADER_SOURCE = R"METAL(
+#include <metal_stdlib>
+using namespace metal;
+
+enum {
+    CMD_FILL_RECT = 0,
+    CMD_FILL_CIRCLE,
+    CMD_FILL_ROUNDED_RECT,
+    CMD_STROKE_SEGMENT,
+    CMD_STROKE_CIRCLE,
+    CMD_SET_CLIP,
+    CMD_CLEAR_CLIP,
+    CMD_SAMPLE_TEXTURE,
+    CMD_DUMP,
+};
+
+struct UniformData {
+    uint cmd_count;
+    uint2 tile_count;
+};
+
+struct Command {
+    uchar cmd;
+    float4 clip;
+    float data[8];
+};
+static_assert(sizeof(Command) == 64, "bad size");
+
+struct CommandInfo {
+    uint cmd_id;
+    bool intersects_clip;
+    float4 bbox;
+};
+
+bool bboxIntersect(float4 a, float4 b) {
+    return (abs((a.x + a.z / 2) - (b.x + b.z / 2)) * 2 < (a.z + b.z)) &&
+           (abs((a.y + a.w / 2) - (b.y + b.w / 2)) * 2 < (a.w + b.w));
+}
+
+// one thread per command
+[[kernel]]
+void build_info(
+    ushort tid [[thread_position_in_grid]],
+    constant UniformData const& uniform [[buffer(0)]],
+    constant Command const* cmds [[buffer(1)]],
+    device CommandInfo* infos [[buffer(2)]]
+) {
+    if (tid >= uniform.cmd_count) {
+        return;
+    }
+    Command cmd = cmds[tid];
+    float4 bbox = 0;
+    if (cmd.cmd == CMD_FILL_CIRCLE) {
+        float2 center = float2(cmd.data[0], cmd.data[1]);
+        float radius = cmd.data[2];
+        radius += 0.5;
+        bbox.xy = center - radius;
+        bbox.zw = float2(radius) * 2;
+    } else if (cmd.cmd == CMD_FILL_ROUNDED_RECT) {
+        float2 origin = float2(cmd.data[0], cmd.data[1]);
+        float2 size = float2(cmd.data[2], cmd.data[3]);
+        bbox.xy = origin - 0.5;
+        bbox.zw = size + 1;
+    } else if (cmd.cmd == CMD_STROKE_SEGMENT) {
+        float2 start = float2(cmd.data[0], cmd.data[1]);
+        float2 end = float2(cmd.data[2], cmd.data[3]);
+        bbox.xy = min(start, end) - 0.5;
+        bbox.zw = abs(end - start) + 1;
+    } else if (cmd.cmd == CMD_STROKE_CIRCLE) {
+        float2 center = float2(cmd.data[0], cmd.data[1]);
+        float radius = cmd.data[2];
+        radius += 0.5;
+        bbox.xy = center - radius;
+        bbox.zw = float2(radius) * 2;
+    } else if (cmd.cmd == CMD_SAMPLE_TEXTURE) {
+        float2 origin = float2(cmd.data[0], cmd.data[1]);
+        float2 size = float2(cmd.data[2], cmd.data[3]);
+        bbox.xy = origin - 0.5;
+        bbox.zw = size + 1;
+    } else if (cmd.cmd == CMD_DUMP) {
+    } else {
+        // do nothing
+    }
+    device CommandInfo& info = infos[tid];
+    info.cmd_id = tid;
+    info.intersects_clip = bboxIntersect(bbox, cmd.clip);
+    info.bbox = bbox;
+}
+
+// count how many tiles each command intersects
+// one thread per command
+[[kernel]]
+void binning_count(
+    ushort tid [[thread_position_in_grid]],
+    constant UniformData const& uniform [[buffer(0)]],
+    constant CommandInfo const* cmds [[buffer(1)]],
+    device atomic_uint* tile_cmd_counts [[buffer(2)]]
+) {
+    if (tid >= uniform.cmd_count) {
+        return;
+    }
+    float4 bbox = cmds[tid].bbox;
+    // (origin, size) -> (p_min, p_max)
+    bbox.z += bbox.x;
+    bbox.w += bbox.y;
+
+    uint2 tmin = uint2(floor(bbox.xy / 8.0));
+    uint2 tmax = uint2(ceil(bbox.zw / 8.0));
+
+    for (uint i = tmin.x; i <= tmax.x; i++) {
+        for (uint j = tmin.y; j <= tmax.y; j++) {
+            atomic_fetch_add_explicit(
+                &tile_cmd_counts[i + j * uniform.tile_count.x],
+                1,
+                memory_order_relaxed
+            );
+        }
+    }
+}
+
+// prefix sum
+// we shall implement chained scan with decoupled lookback
+[[kernel]]
+void prefix_sum(
+    constant UniformData const& uniform [[buffer(0)]],
+    constant uint const* counts [[buffer(1)]]
+) {
+    // TODO
+}
+            )METAL";
+
+        void init_pipelines() {
+            NSError* error = nullptr;
+            {
+                library_ = [device()
+                    newLibraryWithSource:[NSString
+                                             stringWithUTF8String:SHADER_SOURCE]
+                                 options:nullptr
+                                   error:&error];
+                check_error(error, "cannot compiler shader");
+                build_info_func_ = [library_ newFunctionWithName:@"build_info"];
+                binning_count_func_ =
+                    [library_ newFunctionWithName:@"binning_count"];
+            }
+        }
+
+        id<MTLLibrary> library_ = nullptr;
+        id<MTLFunction> build_info_func_ = nullptr;
+        id<MTLFunction> binning_count_func_ = nullptr;
+    };
+
+    class TiledSplitStrategy final : public RenderStrategy {
+    public:
+        TiledSplitStrategy(PainterMetal* painter)
+            : RenderStrategy{painter, "TiledSplitStrategy"},
+              scene_commands_buffer_{painter},
+              bin_slots_buffer_{painter},
+              bin_alloc_buffer_{painter} {
+            init_pipelines();
+        }
+
+        void render(CommandList const& cmdlist,
+                    id<CAMetalDrawable> drawable) override {
+            auto target = drawable.texture;
             size_t tile_count_x = target.width / 8 + 1;
             size_t tile_count_y = target.height / 8 + 1;
             size_t tile_count = tile_count_x * tile_count_y;
@@ -45,7 +279,7 @@ namespace spargel::runtime::ui {
             memcpy([bin_alloc_buffer_.object contents], &alloc_initial,
                    sizeof(BinAlloc));
 
-            auto command_buffer = [queue_ commandBuffer];
+            auto command_buffer = [queue() commandBuffer];
 
             {
                 auto encoder = [command_buffer computeCommandEncoder];
@@ -87,13 +321,6 @@ namespace spargel::runtime::ui {
             [command_buffer presentDrawable:drawable];
             [command_buffer commit];
             [command_buffer waitUntilCompleted];
-        }
-
-        void bind_window(Window* window) override {
-            auto appkit_window = static_cast<WindowAppKit*>(window);
-            layer_ = appkit_window->metal_layer();
-            layer_.device = device_;
-            layer_.pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
         }
 
     private:
@@ -367,12 +594,12 @@ float4 sdf_frag(
     }
     return float4(col.xyz, 1.0);
 }
-        )METAL";
+            )METAL";
 
         void init_pipelines() {
             NSError* error = nullptr;
             {
-                library_ = [device_
+                library_ = [device()
                     newLibraryWithSource:[NSString
                                              stringWithUTF8String:SHADER_SOURCE]
                                  options:nullptr
@@ -389,14 +616,14 @@ float4 sdf_frag(
                 ppl_desc.vertexFunction = vertex_func_;
                 ppl_desc.fragmentFunction = fragment_func_;
                 render_pipeline_ =
-                    [device_ newRenderPipelineStateWithDescriptor:ppl_desc
-                                                            error:&error];
+                    [device() newRenderPipelineStateWithDescriptor:ppl_desc
+                                                             error:&error];
                 check_error(error, "cannot build pipeline");
             }
             {
                 binning_pipeline_ =
-                    [device_ newComputePipelineStateWithFunction:binning_func_
-                                                           error:&error];
+                    [device() newComputePipelineStateWithFunction:binning_func_
+                                                            error:&error];
                 check_error(error, "cannot build pipeline");
             }
             {
@@ -409,72 +636,6 @@ float4 sdf_frag(
             }
         }
 
-        void check_error(NSError* error, char const* msg) {
-            if (error) {
-                auto info = error.localizedDescription;
-                LOG_FATAL("%s:\n%s", msg, info.UTF8String);
-                throw;
-            }
-        }
-
-        static constexpr uint32_t ATLAS_SIZE = 2048;
-
-        // void init_texture() {
-        //     auto desc = [MTLTextureDescriptor
-        //         texture2DDescriptorWithPixelFormat:MTLPixelFormatA8Unorm
-        //                                      width:ATLAS_SIZE
-        //                                     height:ATLAS_SIZE
-        //                                  mipmapped:false];
-        //     desc.storageMode = MTLStorageModeShared;
-        //     texture_ = [device_ newTextureWithDescriptor:desc];
-        // }
-
-        struct BinAlloc {
-            uint32_t offset;
-            bool out_of_space;
-        };
-        static_assert(sizeof(BinAlloc) == 8);
-        struct BinControl {
-            uint32_t tile_count_x;
-            uint32_t tile_count_y;
-            uint32_t cmd_count;
-            uint32_t max_slot;
-        };
-        static_assert(sizeof(BinControl) == 16);
-        struct BinSlot {
-            uint32_t next_slot;
-            uint32_t command_index;
-        };
-        static_assert(sizeof(BinSlot) == 8);
-
-        struct GrowingBuffer {
-            GrowingBuffer(PainterMetal* p) : painter{p} {}
-
-            void request(size_t length) {
-                if (length == 0) {
-                    return;
-                }
-                if (!object) {
-                    object = painter->create_buffer(length);
-                    return;
-                }
-                if (length <= object.length) {
-                    return;
-                }
-                object = painter->create_buffer(length);
-            }
-
-            PainterMetal* painter = nullptr;
-            id<MTLBuffer> object = nullptr;
-        };
-
-        id<MTLBuffer> create_buffer(size_t size) {
-            return [device_ newBufferWithLength:size
-                                        options:MTLResourceStorageModeShared];
-        }
-
-        id<MTLDevice> device_ = nullptr;
-        id<MTLCommandQueue> queue_ = nullptr;
         id<MTLLibrary> library_ = nullptr;
         id<MTLFunction> vertex_func_ = nullptr;
         id<MTLFunction> fragment_func_ = nullptr;
@@ -482,12 +643,52 @@ float4 sdf_frag(
         id<MTLRenderPipelineState> render_pipeline_ = nullptr;
         id<MTLComputePipelineState> binning_pipeline_ = nullptr;
         MTLRenderPassDescriptor* pass_desc_ = nullptr;
-        CAMetalLayer* layer_ = nullptr;
 
         GrowingBuffer scene_commands_buffer_;
         GrowingBuffer bin_slots_buffer_;
         GrowingBuffer bin_alloc_buffer_;
     };
 
-    Painter* Painter::create() { return new PainterMetal; }
+    static constexpr uint32_t ATLAS_SIZE = 2048;
+
+    // void init_texture() {
+    //     auto desc = [MTLTextureDescriptor
+    //         texture2DDescriptorWithPixelFormat:MTLPixelFormatA8Unorm
+    //                                      width:ATLAS_SIZE
+    //                                     height:ATLAS_SIZE
+    //                                  mipmapped:false];
+    //     desc.storageMode = MTLStorageModeShared;
+    //     texture_ = [device_ newTextureWithDescriptor:desc];
+    // }
+
+    struct BinAlloc {
+        uint32_t offset;
+        bool out_of_space;
+    };
+    static_assert(sizeof(BinAlloc) == 8);
+    struct BinControl {
+        uint32_t tile_count_x;
+        uint32_t tile_count_y;
+        uint32_t cmd_count;
+        uint32_t max_slot;
+    };
+    static_assert(sizeof(BinControl) == 16);
+    struct BinSlot {
+        uint32_t next_slot;
+        uint32_t command_index;
+    };
+    static_assert(sizeof(BinSlot) == 8);
+
+    id<MTLBuffer> create_buffer(size_t size) {
+        return [device_ newBufferWithLength:size
+                                    options:MTLResourceStorageModeShared];
+    }
+
+    id<MTLDevice> device_ = nullptr;
+    id<MTLCommandQueue> queue_ = nullptr;
+    CAMetalLayer* layer_ = nullptr;
+    RenderStrategy* strategy_ = nullptr;
+};
+
+Painter* Painter::create() { return new PainterMetal; }
 }  // namespace spargel::runtime::ui
