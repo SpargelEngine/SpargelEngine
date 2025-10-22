@@ -1,16 +1,99 @@
 #include "spargel/runtime/ui/painter.h"
 
 #import <Metal/Metal.h>
-#import <dispatch/dispatch.h>
+#import <QuartzCore/QuartzCore.h>
 
 #include "spargel/runtime/logging.h"
+#include "spargel/runtime/ui/window_appkit.h"
 
 namespace spargel::runtime::ui {
     class PainterMetal final : public Painter {
     public:
-        PainterMetal() {
+        PainterMetal()
+            : scene_commands_buffer_{this},
+              bin_slots_buffer_{this},
+              bin_alloc_buffer_{this} {
             device_ = MTLCreateSystemDefaultDevice();
+            queue_ = [device_ newCommandQueue];
             init_pipelines();
+        }
+
+        void render(CommandList const& cmdlist) override {
+            auto drawable = [layer_ nextDrawable];
+            auto target = drawable.texture;
+
+            size_t tile_count_x = target.width / 8 + 1;
+            size_t tile_count_y = target.height / 8 + 1;
+            size_t tile_count = tile_count_x * tile_count_y;
+
+            size_t command_count = cmdlist.count();
+            size_t commands_size = sizeof(DrawCommand) * command_count;
+            size_t max_slot = cmdlist.estimate_slots() + tile_count;
+
+            BinControl bin_control{uint32_t(tile_count_x),
+                                   uint32_t(tile_count_y),
+                                   uint32_t(command_count), uint32_t(max_slot)};
+
+            scene_commands_buffer_.request(commands_size);
+            bin_slots_buffer_.request(sizeof(BinSlot) * max_slot);
+            bin_alloc_buffer_.request(sizeof(BinAlloc));
+
+            memcpy([scene_commands_buffer_.object contents], cmdlist.data(),
+                   commands_size);
+
+            BinAlloc alloc_initial{uint32_t(tile_count), 0};
+            memcpy([bin_alloc_buffer_.object contents], &alloc_initial,
+                   sizeof(BinAlloc));
+
+            auto command_buffer = [queue_ commandBuffer];
+
+            {
+                auto encoder = [command_buffer computeCommandEncoder];
+                [encoder setComputePipelineState:binning_pipeline_];
+                [encoder setBytes:&bin_control
+                           length:sizeof(BinControl)
+                          atIndex:0];
+                [encoder setBuffer:scene_commands_buffer_.object
+                            offset:0
+                           atIndex:1];
+                [encoder setBuffer:bin_slots_buffer_.object offset:0 atIndex:2];
+                [encoder setBuffer:bin_alloc_buffer_.object offset:0 atIndex:3];
+                [encoder
+                     dispatchThreadgroups:MTLSizeMake(tile_count_x / 8 + 1,
+                                                      tile_count_y / 8 + 1, 1)
+                    threadsPerThreadgroup:MTLSizeMake(8, 8, 1)];
+                [encoder endEncoding];
+            }
+            {
+                pass_desc_.colorAttachments[0].texture = target;
+                auto encoder = [command_buffer
+                    renderCommandEncoderWithDescriptor:pass_desc_];
+                [encoder setRenderPipelineState:render_pipeline_];
+                [encoder setFragmentBytes:&bin_control
+                                   length:sizeof(BinControl)
+                                  atIndex:0];
+                [encoder setFragmentBuffer:scene_commands_buffer_.object
+                                    offset:0
+                                   atIndex:1];
+                [encoder setFragmentBuffer:bin_slots_buffer_.object
+                                    offset:0
+                                   atIndex:2];
+                // [encoder setFragmentTexture:nullptr atIndex:0];
+                [encoder drawPrimitives:MTLPrimitiveTypeTriangle
+                            vertexStart:0
+                            vertexCount:3];
+                [encoder endEncoding];
+            }
+            [command_buffer presentDrawable:drawable];
+            [command_buffer commit];
+            [command_buffer waitUntilCompleted];
+        }
+
+        void bind_window(Window* window) override {
+            auto appkit_window = static_cast<WindowAppKit*>(window);
+            layer_ = appkit_window->metal_layer();
+            layer_.device = device_;
+            layer_.pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
         }
 
     private:
@@ -200,8 +283,8 @@ float4 sdf_frag(
     Sdf_VOut in [[stage_in]],
     constant BinControl const& uniform [[buffer(0)]],
     constant Command2 const* cmds [[buffer(1)]],
-    constant BinSlot* slots [[buffer(2)]],
-    texture2d<float> glyph_texture [[texture(0)]]
+    constant BinSlot* slots [[buffer(2)]] /*,
+    texture2d<float> glyph_texture [[texture(0)]]*/
 ) {
     //constexpr sampler texture_sampler(mag_filter::linear, min_filter::linear);
     constexpr sampler texture_sampler;
@@ -255,7 +338,7 @@ float4 sdf_frag(
             float radius = cmd.data[2];
             c1 = float4(as_type<uchar4>(cmd.data[3])) / 255.0;
             d = sdf_circle_stroke(p - center, radius);
-        } else if (cmd.cmd == CMD_SAMPLE_TEXTURE) {
+        } /* else if (cmd.cmd == CMD_SAMPLE_TEXTURE) {
             float2 origin = float2(cmd.data[0], cmd.data[1]);
             float2 size = float2(cmd.data[2], cmd.data[3]);
             float2 tex_uv0 = float2(as_type<ushort2>(cmd.data[4])) / ATLAS_SIZE;
@@ -273,7 +356,7 @@ float4 sdf_frag(
             float2 uv = p / 1000;
             c1.a *= glyph_texture.sample(texture_sampler, uv).a;
             d = 0.0;
-        } else {
+        } */ else {
             // do nothing
         }
         if (p.x >= clip.x && p.y >= clip.y && p.x <= (clip.x + clip.z) && p.y <= (clip.y + clip.w)) {
@@ -282,7 +365,7 @@ float4 sdf_frag(
             col.xyz = mix(col.xyz, c1.xyz, clamp(1.0 - d, 0.0, 1.0) * c1.a);
         }
     }
-    return float4(col.xyz, 1.0)
+    return float4(col.xyz, 1.0);
 }
         )METAL";
 
@@ -336,15 +419,15 @@ float4 sdf_frag(
 
         static constexpr uint32_t ATLAS_SIZE = 2048;
 
-        void init_texture() {
-            auto desc = [MTLTextureDescriptor
-                texture2DDescriptorWithPixelFormat:MTLPixelFormatA8Unorm
-                                             width:ATLAS_SIZE
-                                            height:ATLAS_SIZE
-                                         mipmapped:false];
-            desc.storageMode = MTLStorageModeShared;
-            texture_ = [device_ newTextureWithDescriptor:desc];
-        }
+        // void init_texture() {
+        //     auto desc = [MTLTextureDescriptor
+        //         texture2DDescriptorWithPixelFormat:MTLPixelFormatA8Unorm
+        //                                      width:ATLAS_SIZE
+        //                                     height:ATLAS_SIZE
+        //                                  mipmapped:false];
+        //     desc.storageMode = MTLStorageModeShared;
+        //     texture_ = [device_ newTextureWithDescriptor:desc];
+        // }
 
         struct BinAlloc {
             uint32_t offset;
@@ -364,7 +447,34 @@ float4 sdf_frag(
         };
         static_assert(sizeof(BinSlot) == 8);
 
+        struct GrowingBuffer {
+            GrowingBuffer(PainterMetal* p) : painter{p} {}
+
+            void request(size_t length) {
+                if (length == 0) {
+                    return;
+                }
+                if (!object) {
+                    object = painter->create_buffer(length);
+                    return;
+                }
+                if (length <= object.length) {
+                    return;
+                }
+                object = painter->create_buffer(length);
+            }
+
+            PainterMetal* painter = nullptr;
+            id<MTLBuffer> object = nullptr;
+        };
+
+        id<MTLBuffer> create_buffer(size_t size) {
+            return [device_ newBufferWithLength:size
+                                        options:MTLResourceStorageModeShared];
+        }
+
         id<MTLDevice> device_ = nullptr;
+        id<MTLCommandQueue> queue_ = nullptr;
         id<MTLLibrary> library_ = nullptr;
         id<MTLFunction> vertex_func_ = nullptr;
         id<MTLFunction> fragment_func_ = nullptr;
@@ -372,7 +482,11 @@ float4 sdf_frag(
         id<MTLRenderPipelineState> render_pipeline_ = nullptr;
         id<MTLComputePipelineState> binning_pipeline_ = nullptr;
         MTLRenderPassDescriptor* pass_desc_ = nullptr;
-        id<MTLTexture> texture_ = nullptr;
+        CAMetalLayer* layer_ = nullptr;
+
+        GrowingBuffer scene_commands_buffer_;
+        GrowingBuffer bin_slots_buffer_;
+        GrowingBuffer bin_alloc_buffer_;
     };
 
     Painter* Painter::create() { return new PainterMetal; }

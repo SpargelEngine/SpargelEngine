@@ -24,6 +24,7 @@ cc_library(
 objc_library(
     name = "ui_macos",
     srcs = [
+        "window_appkit.h",
         "window_appkit.mm",
         "painter_metal.mm",
         ":public_hdrs",
@@ -31,6 +32,7 @@ objc_library(
     ],
     sdk_frameworks = [
         "AppKit",
+        "QuartzCore",
         "Metal",
     ],
 )
