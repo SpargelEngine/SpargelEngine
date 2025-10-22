@@ -18,5 +18,6 @@ namespace spargel::runtime {
         fatal,
     };
     void log_impl(log_level level, char const* file, char const* func,
-                  unsigned int line, char const* msg, ...);
+                  unsigned int line, char const* msg, ...)
+        __attribute__((__format__(__printf__, 5, 6)));
 }  // namespace spargel::runtime

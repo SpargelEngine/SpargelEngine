@@ -1,36 +1,50 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
 
 #include "spargel/runtime/vecmath.h"
 
 namespace spargel::runtime::ui {
+    namespace detail {
+        template <class To, class From>
+        std::enable_if_t<sizeof(To) == sizeof(From), To> bit_cast(
+            const From& src) noexcept {
+            To dst;
+            std::memcpy(&dst, &src, sizeof(To));
+            return dst;
+        }
+    }  // namespace detail
     // TODO(tianjiao): support multiple texture
     struct DrawCommand {
-        Vec4f clip_rect;
-        uint32_t vertex_offset;
-        uint32_t index_offset;
-        uint32_t triangle_count;
+        enum class Kind {
+            fill_rect,
+            fill_circle,
+            fill_rounded_rect,
+            stroke_line,
+            stroke_circle,
+            sample_texture,
+        };
+        Kind kind;
+        alignas(16) Vec4f clip;
+        uint32_t data[8];
     };
-    struct DrawColor {
-        uint32_t value;
-    };
-    struct DrawVertex {
-        Vec2f pos;
-        Vec2f uv;
-        DrawColor color;
-    };
+    static_assert(sizeof(DrawCommand) == 64);
     class CommandList {
     public:
-        void add_triangle(Vec2f p1, Vec2f p2, Vec2f p3, DrawColor color);
+        void add_line(Vec2f p1, Vec2f p2, uint32_t color);
+        void add_triangle(Vec2f p1, Vec2f p2, Vec2f p3, uint32_t color);
+        void add_rect(Vec2f p_min, Vec2f p_max, uint32_t color);
 
     private:
-        std::vector<uint32_t> indices_;
-        std::vector<DrawVertex> vertices_;
+        template <typename... Ts>
+        void push_cmd(DrawCommand::Kind cmd, Ts... ts) {
+            cmds_.push_back(DrawCommand{
+                cmd, clip_, {detail::bit_cast<Ts, uint32_t>(ts)...}});
+        }
+
+        Vec4f clip_;
         std::vector<DrawCommand> cmds_;
-    };
-    struct PaintData {
-        std::vector<CommandList*> cmdlists;
     };
     class Painter {
     public:
