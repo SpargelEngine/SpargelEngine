@@ -1,0 +1,3 @@
+[submodule "third_party/dear_imgui"]
+	path = third_party/dear_imgui
+	url = ../imgui
