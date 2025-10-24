@@ -80,6 +80,13 @@ private:
         id<MTLCommandQueue> queue_ = nullptr;
     };
 
+    // WARNING: The current implementation breaks rendering order. In the shader
+    // `binning_write`, the order that commands are added to tiles are random,
+    // and this leads to serious visual glitching. To resolve this issue, we
+    // need to sort each tile's commands by their id after the commands are
+    // written. I'm not sure whether this kind of complexity is needed for UI
+    // rendering, and early profiling results indicate that we are already bound
+    // by the shader `render` which costs more than 80%.
     class CompactTileStrategy final : public RenderStrategy {
     public:
         static constexpr bool use_dummy_scan = false;
