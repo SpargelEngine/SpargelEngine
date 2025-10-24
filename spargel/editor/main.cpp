@@ -1,5 +1,3 @@
-#include <stdlib.h>
-
 #include "spargel/runtime/ui/painter.h"
 #include "spargel/runtime/ui/window.h"
 
@@ -14,14 +12,13 @@ public:
         window_->set_delegate(this);
         painter_ = ui::Painter::create();
         painter_->bind_window(window_);
-        cmdlist_.set_clip(0, 0, 500, 500);
 
-        for (int i = 0; i < 1280; i++) {
-            int x = rand() % 500;
-            int y = rand() % 500;
-            int r = rand() % 20;
-            uint32_t c = rand();
-            cmdlist_.fill_circle(x * 1.0f, y * 1.0f, r * 1.0f, c);
+        cmdlist_.fill_tri({0, 0}, {100, 200}, {200, 100}, 0xFFFF0000);
+        cmdlist_.stroke_line({0, 0}, {500, 500}, 2.0, 0xFF00FF00);
+
+        for (int i = 1; i < 10; i++) {
+            cmdlist_.stroke_line({0, 10.0f * i}, {500, 10.0f * i}, 1.0,
+                                 0xFFCCCCCC);
         }
     }
 

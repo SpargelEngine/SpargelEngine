@@ -7,100 +7,59 @@
 }
 @end
 
-@implementation SpargelMainView {
-    CADisplayLink* display_link_;
-    CAMetalLayer* metal_layer_;
-    NSTrackingArea* tracking_area_;
-    spargel::runtime::ui::WindowAppKit* bridge_;
+@implementation SpargelViewController {
+    spargel::runtime::ui::WindowAppKit* spargel_window_;
+    MTKView* view_;
 }
-
-- (instancetype)initWithBridge:(spargel::runtime::ui::WindowAppKit*)bridge {
+- (nonnull instancetype)initWithSpargel:
+    (spargel::runtime::ui::WindowAppKit*)spargel_window {
     self = [super init];
     if (self) {
-        bridge_ = bridge;
-        metal_layer_ = bridge_->metal_layer();
-        self.layer = metal_layer_;
-        self.wantsLayer = true;
-
-        [self recreateTrackingArea];
+        spargel_window_ = spargel_window;
     }
     return self;
 }
-
-- (void)recreateTrackingArea {
-    if (tracking_area_) {
-        [self removeTrackingArea:tracking_area_];
+// override: NSViewController
+- (void)loadView {
+    view_ = [[MTKView alloc] init];
+    view_.delegate = self;
+    self.view = view_;
+}
+// override: NSViewController
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    spargel_window_->set_view(view_);
+}
+// override: NSViewController
+- (void)viewDidAppear {
+    [self.view.window makeFirstResponder:self];
+}
+// override: NSResponder
+- (bool)acceptsFirstResponder {
+    return true;
+}
+// override: NSResponder
+- (void)keyDown:(NSEvent*)event {
+    // TODO(tianjiao): why?
+    // [self interpretKeyEvents:@[ event ]];
+    auto code = [event keyCode];
+    LOG_INFO("key down: %u", code);
+}
+// override: NSResponder
+- (void)mouseDown:(NSEvent*)event {
+    auto loc = [event locationInWindow];
+    LOG_INFO("mouse down: %.3f %.3f", loc.x, loc.y);
+}
+// override: MTKViewDelegate
+- (void)drawInMTKView:(MTKView*)view {
+    auto delegate = spargel_window_->delegate();
+    if (delegate) {
+        delegate->on_render();
     }
-
-    NSTrackingAreaOptions options =
-        NSTrackingActiveAlways | NSTrackingInVisibleRect |
-        NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved;
-    tracking_area_ = [[NSTrackingArea alloc] initWithRect:[self bounds]
-                                                  options:options
-                                                    owner:self
-                                                 userInfo:nil];
-    [self addTrackingArea:tracking_area_];
 }
-
-- (void)render:(CADisplayLink*)sender {
-    // The Application Kit creates an autorelease pool on the main thread at the
-    // beginning of every cycle of the event loop, and drains it at the end,
-    // thereby releasing any autoreleased objects generated while processing an
-    // event.
-    //
-    if (bridge_->delegate()) {
-        bridge_->delegate()->on_render();
-    }
+// override: MTKViewDelegate
+- (void)mtkView:(MTKView*)view drawableSizeWillChange:(CGSize)size {
 }
-
-- (void)setupDisplayLink:(NSWindow*)window {
-    [display_link_ invalidate];
-    display_link_ = [window displayLinkWithTarget:self
-                                         selector:@selector(render:)];
-    display_link_.paused = false;
-}
-- (void)viewDidMoveToWindow {
-    [super viewDidMoveToWindow];
-    // move off a window
-    if (self.window == nullptr) {
-        [display_link_ invalidate];
-        display_link_ = nullptr;
-        return;
-    }
-    [self setupDisplayLink:self.window];
-    [display_link_ addToRunLoop:[NSRunLoop currentRunLoop]
-                        forMode:NSRunLoopCommonModes];
-    [self resizeDrawable:self.window.screen.backingScaleFactor];
-}
-
-- (void)resizeDrawable:(CGFloat)scaleFactor {
-    CGSize newSize = self.bounds.size;
-    newSize.width *= scaleFactor;
-    newSize.height *= scaleFactor;
-
-    if (newSize.width <= 0 || newSize.width <= 0) {
-        return;
-    }
-    if (newSize.width == metal_layer_.drawableSize.width &&
-        newSize.height == metal_layer_.drawableSize.height) {
-        return;
-    }
-    metal_layer_.contentsScale = scaleFactor;
-    metal_layer_.drawableSize = newSize;
-}
-- (void)viewDidChangeBackingProperties {
-    [super viewDidChangeBackingProperties];
-    [self resizeDrawable:self.window.screen.backingScaleFactor];
-}
-- (void)setFrameSize:(NSSize)size {
-    [super setFrameSize:size];
-    [self resizeDrawable:self.window.screen.backingScaleFactor];
-}
-- (void)setBoundsSize:(NSSize)size {
-    [super setBoundsSize:size];
-    [self resizeDrawable:self.window.screen.backingScaleFactor];
-}
-
 @end
 
 namespace spargel::runtime::ui {
@@ -116,31 +75,26 @@ void WindowAppKit::init_app() {
 }
 
 void WindowAppKit::init_window() {
-    auto width = 500.0;
-    auto height = 500.0;
-
-    auto screen = [NSScreen mainScreen];
-
     NSWindowStyleMask style =
         NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable |
         NSWindowStyleMaskResizable | NSWindowStyleMaskTitled;
-
-    auto rect = NSMakeRect(0, 0, width, height);
-    // center the window
-    rect.origin.x = (screen.frame.size.width - width) / 2;
-    rect.origin.y = (screen.frame.size.height - height) / 2;
-
-    ns_window_ = [[NSWindow alloc] initWithContentRect:rect
+    auto screen = [NSScreen mainScreen];
+    ns_window_ = [[NSWindow alloc] initWithContentRect:NSZeroRect
                                              styleMask:style
                                                backing:NSBackingStoreBuffered
                                                  defer:false
                                                 screen:screen];
-    [ns_window_ makeKeyAndOrderFront:nullptr];
 
-    // create metal layer before creating the main view
-    metal_layer_ = [[CAMetalLayer alloc] init];
-    main_view_ = [[SpargelMainView alloc] initWithBridge:this];
-    ns_window_.contentView = main_view_;
+    view_controller_ = [[SpargelViewController alloc] initWithSpargel:this];
+
+    const auto width = 500.0;
+    const auto height = 500.0;
+    view_controller_.view.frame = NSMakeRect(0, 0, width, height);
+
+    // > Setting contentViewController causes the window to resize based on the
+    // > current size of the contentViewController.
+    ns_window_.contentViewController = view_controller_;
+    [ns_window_ makeKeyAndOrderFront:nullptr];
 }
 
 Window* Window::create() { return new WindowAppKit; }

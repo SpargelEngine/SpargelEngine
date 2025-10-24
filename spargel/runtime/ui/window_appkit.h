@@ -1,6 +1,7 @@
 #pragma once
 
 #import <AppKit/AppKit.h>
+#import <MetalKit/MetalKit.h>
 #import <QuartzCore/QuartzCore.h>
 
 #include "spargel/runtime/ui/window.h"
@@ -11,8 +12,7 @@
 @interface SpargelWindowDelegate : NSObject <NSWindowDelegate>
 @end
 
-// TODO(tianjiao): implement <NSTextInputClient>
-@interface SpargelMainView : NSView
+@interface SpargelViewController : NSViewController <MTKViewDelegate>
 @end
 
 namespace spargel::runtime::ui {
@@ -26,7 +26,9 @@ public:
     void set_title(char const* title) override;
     void show() override { [NSApp run]; }
 
-    CAMetalLayer* metal_layer() { return metal_layer_; }
+    MTKView* mtk_view() { return view_; }
+
+    void set_view(MTKView* view) { view_ = view; }
 
 private:
     void init_app();
@@ -35,7 +37,7 @@ private:
     NSApplication* ns_app_ = nullptr;
     SpargelApplicationDelegate* nsapp_delegate_ = nullptr;
     NSWindow* ns_window_ = nullptr;
-    CAMetalLayer* metal_layer_ = nullptr;
-    SpargelMainView* main_view_ = nullptr;
+    MTKView* view_ = nullptr;
+    SpargelViewController* view_controller_ = nullptr;
 };
 }  // namespace spargel::runtime::ui

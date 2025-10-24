@@ -25,7 +25,7 @@ void log_impl(log_level level, char const* file, char const* func,
               unsigned int line, char const* fmt, ...) {
     va_list ap;
 
-    fprintf(stderr, "[%s:%s:%s:%u] ", level_name(level), file, func, line);
+    fprintf(stderr, "[%s] ", level_name(level));
 
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
