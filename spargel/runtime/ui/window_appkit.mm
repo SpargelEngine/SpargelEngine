@@ -85,6 +85,7 @@
         newSize.height == metal_layer_.drawableSize.height) {
         return;
     }
+    metal_layer_.contentsScale = scaleFactor;
     metal_layer_.drawableSize = newSize;
 }
 - (void)viewDidChangeBackingProperties {

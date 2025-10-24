@@ -82,7 +82,7 @@ private:
 
     class CompactTileStrategy final : public RenderStrategy {
     public:
-        static constexpr bool use_dummy_scan = true;
+        static constexpr bool use_dummy_scan = false;
 
         CompactTileStrategy(PainterMetal* painter)
             : RenderStrategy{painter, "CompactTileStrategy"},
@@ -199,9 +199,10 @@ private:
                 [encoder setBuffer:tile_offset_buffer_.object
                             offset:0
                            atIndex:4];
-                [encoder dispatchThreadgroups:MTLSizeMake(tile_count / 256 + 1,
-                                                          1, 1)
-                        threadsPerThreadgroup:MTLSizeMake(256, 1, 1)];
+                [encoder
+                     dispatchThreadgroups:MTLSizeMake(
+                                              tile_count / (256 * 16) + 1, 1, 1)
+                    threadsPerThreadgroup:MTLSizeMake(256, 1, 1)];
                 [encoder endEncoding];
             }
             {
@@ -252,12 +253,6 @@ private:
             LOG_INFO("render done with GPU time %.3fms",
                      (command_buffer.GPUEndTime - command_buffer.GPUStartTime) *
                          1000.0);
-
-            // auto ptr = (uint32_t*)[tile_offset_buffer_.object contents];
-            // for (int i = 0; i < 1000; i++) {
-            //     printf("%d ", ptr[i]);
-            // }
-            // exit(1);
         }
 
     private:
@@ -380,9 +375,6 @@ void binning_count(
 
     tmin = clamp(tmin, 0, uniform.tile_count - 1);
     tmax = clamp(tmax, 0, uniform.tile_count - 1);
-
-    // uint2 tmin = uint2(max(floor(bbox.xy / 8.0), 0.0));
-    // uint2 tmax = uint2(min(ceil(bbox.zw / 8.0), float2(uniform.tile_count) - 1.0));
 
     for (uint i = tmin.x; i <= tmax.x; i++) {
         for (uint j = tmin.y; j <= tmax.y; j++) {
