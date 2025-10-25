@@ -4,37 +4,29 @@ filegroup(
     name = "public_hdrs",
     srcs = [
         "context.h",
-        "painter.h",
     ],
 )
 
 cc_library(
-    name = "ui",
+    name = "gpu",
     hdrs = [":public_hdrs"],
-    srcs = [
-        "context.cpp",
-        "//spargel/runtime:public_hdrs",
-    ],
+    srcs = [],
     deps = select({
-        "@platforms//os:macos": [":ui_macos"],
+        "@platforms//os:macos": [":gpu_metal"],
     }),
     visibility = ["//spargel/runtime:packages"],
 )
 
 objc_library(
-    name = "ui_macos",
+    name = "gpu_metal",
     srcs = [
-        "backend_macos.h",
-        "backend_macos.mm",
+        "context_metal.h",
+        "context_metal.mm",
         ":public_hdrs",
         "//spargel/runtime:public_hdrs",
     ],
-    deps = [
-        "//spargel/runtime/gpu:gpu_metal",
-    ],
     sdk_frameworks = [
-        "AppKit",
         "Metal",
-        "MetalKit",
     ],
+    visibility = ["//spargel/runtime/ui:__subpackages__"],
 )

@@ -5,11 +5,6 @@
 
 #include "spargel/runtime/vecmath.h"
 
-// forward declaration
-namespace spargel::runtime::ui {
-class Window;
-}
-
 namespace spargel::runtime::ui {
 struct DrawVertex {
     Vec2f position;
@@ -18,9 +13,6 @@ struct DrawVertex {
     uint32_t dummy;
 };
 static_assert(sizeof(DrawVertex) == 24);
-struct CommandListConfig {
-    Vec2f white_pixel_uv;
-};
 class CommandList {
 public:
     static constexpr Vec2f WHITE_PIXEL = {0.5f / 16, 0.5f / 16};
@@ -72,14 +64,5 @@ public:
 private:
     std::vector<DrawVertex> vertices_;
     std::vector<uint32_t> indices_;
-};
-class Painter {
-public:
-    static Painter* create();
-
-    virtual ~Painter() = default;
-
-    virtual void bind_window(Window* window) = 0;
-    virtual void render(CommandList const& cmdlist) = 0;
 };
 }  // namespace spargel::runtime::ui
