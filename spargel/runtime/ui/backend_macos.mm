@@ -78,7 +78,10 @@ void BackendMac::init() {
 void BackendMac::set_title(char const* title) {
     ns_window_.title = [NSString stringWithUTF8String:title];
 }
-void BackendMac::start_with(RenderDelegate* delegate) { [nsapp_ run]; }
+void BackendMac::start_with(RenderDelegate* delegate) {
+    delegate_ = delegate;
+    [nsapp_ run];
+}
 void BackendMac::set_mtk_view(MTKView* view) { view_ = view; }
 MTKView* BackendMac::mtk_view() { return view_; }
 namespace {
@@ -87,6 +90,10 @@ struct UniformData {
 };
 }  // namespace
 void BackendMac::render() {
+    if (delegate_) {
+        delegate_->render();
+    }
+
     auto& cmdlist = Context::get().command_list();
     auto width = view_.bounds.size.width;
     auto height = view_.bounds.size.height;

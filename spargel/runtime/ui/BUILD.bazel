@@ -3,6 +3,7 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "objc_library")
 filegroup(
     name = "public_hdrs",
     srcs = [
+        "commands.h",
         "context.h",
         "painter.h",
     ],
@@ -12,6 +13,7 @@ cc_library(
     name = "ui",
     hdrs = [":public_hdrs"],
     srcs = [
+        "commands.cpp",
         "context.cpp",
         "//spargel/runtime:public_hdrs",
     ],

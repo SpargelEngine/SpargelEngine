@@ -63,5 +63,6 @@ private:
     id<MTLTexture> texture_ = nullptr;
     GrowingBuffer vertex_buffer_;
     GrowingBuffer index_buffer_;
+    RenderDelegate* delegate_ = nullptr;
 };
 }  // namespace spargel::runtime::ui

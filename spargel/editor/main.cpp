@@ -1,4 +1,5 @@
 #include "spargel/runtime/init.h"
+#include "spargel/runtime/ui/commands.h"
 #include "spargel/runtime/ui/context.h"
 
 namespace ui = spargel::runtime::ui;
@@ -6,24 +7,14 @@ namespace ui = spargel::runtime::ui;
 namespace spargel::editor {
 class EditorApp : public ui::RenderDelegate {
 public:
-    EditorApp() {
-        ui_ctx_ = &ui::Context::get();
-        cmdlist_ = &ui_ctx_->command_list();
-
-        cmdlist_->fill_tri({0, 0}, {100, 200}, {200, 100}, 0xFFFF0000);
-        cmdlist_->stroke_line({0, 0}, {500, 500}, 2.0, 0xFF00FF00);
-
+    void render() override {
+        ui::begin_frame();
+        ui::fill_triangle({0, 0}, {100, 200}, {200, 100}, 0xFFFF0000);
+        ui::stroke_line({0, 0}, {500, 500}, 2.0, 0xFF00FF00);
         for (int i = 1; i < 10; i++) {
-            cmdlist_->stroke_line({0, 10.0f * i}, {500, 10.0f * i}, 1.0,
-                                  0xFFCCCCCC);
+            ui::stroke_line({0, 10.0f * i}, {500, 10.0f * i}, 1.0, 0xFFCCCCCC);
         }
     }
-
-    void render() override {}
-
-private:
-    ui::Context* ui_ctx_ = nullptr;
-    ui::CommandList* cmdlist_;
 };
 }  // namespace spargel::editor
 
