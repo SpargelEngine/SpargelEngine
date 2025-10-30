@@ -17,7 +17,9 @@ cc_library(
         "context.cpp",
         "//spargel/runtime:public_hdrs",
     ],
-    deps = select({
+    deps = [
+        "//spargel/runtime/math",
+    ] + select({
         "@platforms//os:macos": [":ui_macos"],
     }),
     visibility = ["//spargel/runtime:packages"],
@@ -26,12 +28,13 @@ cc_library(
 objc_library(
     name = "ui_macos",
     srcs = [
-        "backend_macos.h",
-        "backend_macos.mm",
+        "backend_mac.h",
+        "backend_mac.mm",
         ":public_hdrs",
         "//spargel/runtime:public_hdrs",
     ],
     deps = [
+        "//spargel/runtime/math",
         "//spargel/runtime/gpu:gpu_metal",
     ],
     sdk_frameworks = [

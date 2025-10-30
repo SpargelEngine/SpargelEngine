@@ -1,6 +1,6 @@
 #pragma once
 
-namespace spargel::runtime {
+namespace spargel::math {
 template <typename T>
 struct Vec2 {
     T x, y;
@@ -11,4 +11,4 @@ struct Vec4 {
     T x, y, z, w;
 };
 using Vec4f = Vec4<float>;
-}  // namespace spargel::runtime
+}  // namespace spargel::math

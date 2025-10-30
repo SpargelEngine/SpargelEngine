@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-namespace spargel::runtime {
+namespace spargel {
 namespace {
 char const* level_name(log_level level) {
     switch (level) {
@@ -34,4 +34,4 @@ void log_impl(log_level level, char const* file, char const* func,
     fprintf(stderr, "\n");
 }
 
-}  // namespace spargel::runtime
+}  // namespace spargel

@@ -2,7 +2,7 @@
 
 #include "spargel/runtime/logging.h"
 
-namespace spargel::runtime::gpu {
+namespace spargel::gpu {
 Context& Context::get() {
     static ContextMetal mtl_ctx;
     return mtl_ctx;
@@ -18,4 +18,4 @@ void ContextMetal::init() {
 }
 id<MTLDevice> ContextMetal::device() { return device_; }
 id<MTLCommandQueue> ContextMetal::queue() { return queue_; }
-}  // namespace spargel::runtime::gpu
+}  // namespace spargel::gpu

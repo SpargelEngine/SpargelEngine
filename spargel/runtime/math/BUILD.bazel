@@ -1,0 +1,9 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "math",
+    hdrs = [
+        "vecmath.h",
+    ],
+    visibility = ["//spargel/runtime:__subpackages__"],
+)

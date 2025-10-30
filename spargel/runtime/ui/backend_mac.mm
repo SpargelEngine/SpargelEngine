@@ -1,4 +1,4 @@
-#include "spargel/runtime/ui/backend_macos.h"
+#include "spargel/runtime/ui/backend_mac.h"
 
 #include "spargel/runtime/check.h"
 #include "spargel/runtime/logging.h"
@@ -11,14 +11,17 @@
 @end
 
 @implementation SpargelViewController {
-    spargel::runtime::ui::BackendMac* spargel_window_;
+    spargel::ui::BackendMac* spargel_backend_;
     MTKView* view_;
+    NSTrackingArea* tracking_area_;
 }
 - (nonnull instancetype)initWithSpargel:
-    (spargel::runtime::ui::BackendMac*)spargel_window {
+    (spargel::ui::BackendMac*)spargel_window {
     self = [super init];
     if (self) {
-        spargel_window_ = spargel_window;
+        spargel_backend_ = spargel_window;
+        view_ = nullptr;
+        tracking_area_ = nullptr;
     }
     return self;
 }
@@ -26,11 +29,12 @@
 - (void)loadView {
     view_ = [[MTKView alloc] init];
     view_.delegate = self;
+    [self updateTrackingArea];
     self.view = view_;
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    spargel_window_->set_mtk_view(view_);
+    spargel_backend_->set_mtk_view(view_);
 }
 - (void)viewDidAppear {
     [self.view.window makeFirstResponder:self];
@@ -49,16 +53,35 @@
     auto loc = [event locationInWindow];
     LOG_INFO("mouse down: %.3f %.3f", loc.x, loc.y);
 }
+- (void)mouseMoved:(NSEvent*)event {
+    auto loc = [event locationInWindow];
+    LOG_INFO("mouse moved: %.3f %.3f", loc.x, loc.y);
+}
 // override: MTKViewDelegate
 - (void)drawInMTKView:(MTKView*)view {
-    CHECK(spargel_window_);
-    spargel_window_->render();
+    CHECK(spargel_backend_);
+    spargel_backend_->render();
 }
 - (void)mtkView:(MTKView*)view drawableSizeWillChange:(CGSize)size {
 }
+// tracking area
+- (void)updateTrackingArea {
+    if (tracking_area_) {
+        [view_ removeTrackingArea:tracking_area_];
+        tracking_area_ = nullptr;
+    }
+    NSTrackingAreaOptions options =
+        NSTrackingActiveAlways | NSTrackingInVisibleRect |
+        NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved;
+    tracking_area_ = [[NSTrackingArea alloc] initWithRect:view_.bounds
+                                                  options:options
+                                                    owner:self
+                                                 userInfo:nullptr];
+    [view_ addTrackingArea:tracking_area_];
+}
 @end
 
-namespace spargel::runtime::ui {
+namespace spargel::ui {
 Backend* Context::create_backend() { return new BackendMac; }
 
 BackendMac::~BackendMac() {
@@ -86,7 +109,7 @@ void BackendMac::set_mtk_view(MTKView* view) { view_ = view; }
 MTKView* BackendMac::mtk_view() { return view_; }
 namespace {
 struct UniformData {
-    Vec2f viewport_size;
+    math::Vec2f viewport_size;
 };
 }  // namespace
 void BackendMac::render() {
@@ -306,4 +329,4 @@ id<MTLBuffer> BackendMac::GrowingBuffer::create_buffer(size_t size) {
     return [device_ newBufferWithLength:size
                                 options:MTLResourceStorageModeShared];
 }
-}  // namespace spargel::runtime::ui
+}  // namespace spargel::ui

@@ -16,7 +16,7 @@
 @interface SpargelViewController : NSViewController <MTKViewDelegate>
 @end
 
-namespace spargel::runtime::ui {
+namespace spargel::ui {
 class BackendMac final : public Backend {
 public:
     ~BackendMac();
@@ -65,4 +65,4 @@ private:
     GrowingBuffer index_buffer_;
     RenderDelegate* delegate_ = nullptr;
 };
-}  // namespace spargel::runtime::ui
+}  // namespace spargel::ui

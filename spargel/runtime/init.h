@@ -1,5 +1,5 @@
 #pragma once
 
-namespace spargel::runtime {
+namespace spargel {
 void init_runtime();
 }

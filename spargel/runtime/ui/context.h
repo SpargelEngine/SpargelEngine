@@ -1,8 +1,10 @@
 #pragma once
 
+#include <vector>
+
 #include "spargel/runtime/ui/painter.h"
 
-namespace spargel::runtime::ui {
+namespace spargel::ui {
 class RenderDelegate {
 public:
     virtual ~RenderDelegate() = default;
@@ -16,6 +18,15 @@ public:
     virtual void set_title(char const*) = 0;
     virtual void start_with(RenderDelegate* delegate) = 0;
 };
+// a virtual window managed by the framework
+struct Window {
+    char const* name;
+    math::Vec2f position;
+    math::Vec2f size;
+};
+struct InputState {
+    math::Vec2f mouse_position;
+};
 class Context {
 public:
     static Context& get();
@@ -28,10 +39,15 @@ public:
 
     CommandList& command_list() { return cmdlist_; }
 
+    Window* find_window(char const* name);
+
 private:
     static Backend* create_backend();
 
     Backend* backend_ = nullptr;
     CommandList cmdlist_;
+
+    // this is persisted between frames
+    std::vector<Window*> windows_;
 };
-}  // namespace spargel::runtime::ui
+}  // namespace spargel::ui

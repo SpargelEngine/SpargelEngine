@@ -4,7 +4,7 @@
 
 #include "spargel/runtime/gpu/context.h"
 
-namespace spargel::runtime::gpu {
+namespace spargel::gpu {
 class ContextMetal final : public Context {
 public:
     ~ContextMetal();
@@ -18,4 +18,4 @@ private:
     id<MTLDevice> device_ = nullptr;
     id<MTLCommandQueue> queue_ = nullptr;
 };
-}  // namespace spargel::runtime::gpu
+}  // namespace spargel::gpu

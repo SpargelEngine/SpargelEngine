@@ -1,6 +1,6 @@
 #pragma once
 
-namespace spargel::runtime::gpu {
+namespace spargel::gpu {
 class Context {
 public:
     static Context& get();
@@ -9,4 +9,4 @@ public:
 
     virtual void init() = 0;
 };
-}  // namespace spargel::runtime::gpu
+}  // namespace spargel::gpu

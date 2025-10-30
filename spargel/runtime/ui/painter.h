@@ -3,21 +3,21 @@
 #include <cstdint>
 #include <vector>
 
-#include "spargel/runtime/vecmath.h"
+#include "spargel/runtime/math/vecmath.h"
 
-namespace spargel::runtime::ui {
+namespace spargel::ui {
 struct DrawVertex {
-    Vec2f position;
-    Vec2f tex_coord;
+    math::Vec2f position;
+    math::Vec2f tex_coord;
     uint32_t color;
     uint32_t dummy;
 };
 static_assert(sizeof(DrawVertex) == 24);
 class CommandList {
 public:
-    static constexpr Vec2f WHITE_PIXEL = {0.5f / 16, 0.5f / 16};
+    static constexpr math::Vec2f WHITE_PIXEL = {0.5f / 16, 0.5f / 16};
 
-    void fill_tri(Vec2f p1, Vec2f p2, Vec2f p3, uint32_t c) {
+    void fill_tri(math::Vec2f p1, math::Vec2f p2, math::Vec2f p3, uint32_t c) {
         uint32_t i = uint32_t(vertices_.size());
         vertices_.push_back({p1, WHITE_PIXEL, c});
         vertices_.push_back({p2, WHITE_PIXEL, c});
@@ -27,7 +27,7 @@ public:
         indices_.push_back(i + 2);
     }
 
-    void stroke_line(Vec2f p1, Vec2f p2, float thickness, uint32_t c) {
+    void stroke_line(math::Vec2f p1, math::Vec2f p2, float thickness, uint32_t c) {
         // non-anti-aliasing line rendering
         auto dx = p2.x - p1.x;
         auto dy = p2.y - p1.y;
@@ -65,4 +65,4 @@ private:
     std::vector<DrawVertex> vertices_;
     std::vector<uint32_t> indices_;
 };
-}  // namespace spargel::runtime::ui
+}  // namespace spargel::ui
