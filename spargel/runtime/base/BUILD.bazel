@@ -1,0 +1,13 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "base",
+    hdrs = [
+        "check.h",
+        "logging.h",
+    ],
+    srcs = [
+        "logging.cpp",
+    ],
+    visibility = ["//spargel/runtime:__subpackages__"],
+)

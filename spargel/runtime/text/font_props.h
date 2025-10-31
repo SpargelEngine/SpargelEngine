@@ -1,19 +1,20 @@
 #pragma once
 
 namespace spargel::text {
+
 // This follows CSS Fonts Module Level 3.
 // TODO(tianjiao): CSS Fonts Module Level 4 introduces oblique angle.
 enum FontStyle {
-    normal,
-    italic,
-    oblique,
+  normal,
+  italic,
+  oblique,
 };
 
 // light    300
 // normal   400
 // bold     700
 struct FontWeight {
-    float value;
+  float value;
 };
 
 // absolute keyword value:
@@ -21,12 +22,13 @@ struct FontWeight {
 //      normal       100%
 //      expanded     125%
 struct FontWidth {
-    float value;
+  float value;
 };
 
 struct FontProps {
-    FontStyle style;
-    FontWeight weight;
-    FontWidth width;
+  FontStyle style;
+  FontWeight weight;
+  FontWidth width;
 };
+
 }  // namespace spargel::text

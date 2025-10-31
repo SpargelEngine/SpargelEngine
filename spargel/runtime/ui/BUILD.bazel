@@ -18,7 +18,9 @@ cc_library(
         "//spargel/runtime:public_hdrs",
     ],
     deps = [
+        "//spargel/runtime/base",
         "//spargel/runtime/math",
+        "//spargel/runtime/text",
     ] + select({
         "@platforms//os:macos": [":ui_macos"],
     }),

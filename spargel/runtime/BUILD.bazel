@@ -8,9 +8,7 @@ package_group(
 filegroup(
     name = "public_hdrs",
     srcs = [
-        "check.h",
         "init.h",
-        "logging.h",
     ],
     visibility = [":packages"],
 )
@@ -20,10 +18,11 @@ cc_library(
     hdrs = [":public_hdrs"],
     srcs = [
         "init.cpp",
-        "logging.cpp",
     ],
     deps = [
+        "//spargel/runtime/base",
         "//spargel/runtime/gpu",
+        "//spargel/runtime/text",
         "//spargel/runtime/ui",
     ],
     visibility = ["//visibility:public"],

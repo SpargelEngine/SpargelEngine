@@ -5,17 +5,19 @@
 #include "spargel/runtime/gpu/context.h"
 
 namespace spargel::gpu {
+
 class ContextMetal final : public Context {
 public:
-    ~ContextMetal();
+  ~ContextMetal();
 
-    void init() override;
+  void init() override;
 
-    id<MTLDevice> device();
-    id<MTLCommandQueue> queue();
+  id<MTLDevice> device();
+  id<MTLCommandQueue> queue();
 
 private:
-    id<MTLDevice> device_ = nullptr;
-    id<MTLCommandQueue> queue_ = nullptr;
+  id<MTLDevice> device_ = nullptr;
+  id<MTLCommandQueue> queue_ = nullptr;
 };
+
 }  // namespace spargel::gpu

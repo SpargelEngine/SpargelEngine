@@ -25,6 +25,9 @@ objc_library(
         ":public_hdrs",
         "//spargel/runtime:public_hdrs",
     ],
+    deps = [
+        "//spargel/runtime/base",
+    ],
     sdk_frameworks = [
         "Metal",
     ],

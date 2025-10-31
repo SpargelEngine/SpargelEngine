@@ -1,0 +1,35 @@
+load("@rules_cc//cc:defs.bzl", "cc_library", "objc_library")
+
+filegroup(
+    name = "public_hdrs",
+    srcs = [
+        "font.h",
+        "font_manager.h",
+    ],
+)
+
+cc_library(
+    name = "text",
+    hdrs = [":public_hdrs"],
+    srcs = [
+        "font_manager.cpp",
+    ],
+    deps = select({
+        "@platforms//os:macos": [":text_macos"],
+    }),
+    visibility = ["//spargel/runtime:__subpackages__"],
+)
+
+objc_library(
+    name = "text_macos",
+    srcs = [
+        ":public_hdrs",
+        "font_manager_mac.mm",
+    ],
+    deps = [
+        "//spargel/runtime/apple",
+    ],
+    sdk_frameworks = [
+        "CoreText",
+    ],
+)

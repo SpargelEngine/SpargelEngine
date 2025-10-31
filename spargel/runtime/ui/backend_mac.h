@@ -17,52 +17,54 @@
 @end
 
 namespace spargel::ui {
+
 class BackendMac final : public Backend {
 public:
-    ~BackendMac();
+  ~BackendMac();
 
-    char const* name() const override;
-    void init() override;
-    void set_title(char const* title) override;
-    void start_with(RenderDelegate* delegate) override;
+  char const* name() const override;
+  void init() override;
+  void set_title(char const* title) override;
+  void start_with(RenderDelegate* delegate) override;
 
-    // called from SpargelViewController
-    void set_mtk_view(MTKView* view);
-    MTKView* mtk_view();
-    void render();
+  // called from SpargelViewController
+  void set_mtk_view(MTKView* view);
+  MTKView* mtk_view();
+  void render();
 
 private:
-    class GrowingBuffer {
-    public:
-        ~GrowingBuffer();
+  class GrowingBuffer {
+  public:
+    ~GrowingBuffer();
 
-        void set_device(id<MTLDevice> device);
-        id<MTLBuffer> object();
-        void request(size_t length);
+    void set_device(id<MTLDevice> device);
+    id<MTLBuffer> object();
+    void request(size_t length);
 
-    private:
-        id<MTLBuffer> create_buffer(size_t size);
+  private:
+    id<MTLBuffer> create_buffer(size_t size);
 
-        id<MTLDevice> device_ = nullptr;
-        id<MTLBuffer> object_ = nullptr;
-    };
+    id<MTLDevice> device_ = nullptr;
+    id<MTLBuffer> object_ = nullptr;
+  };
 
-    void init_app();
-    void init_window();
-    void init_gpu();
-    void create_pipeline();
-    void create_texture();
+  void init_app();
+  void init_window();
+  void init_gpu();
+  void create_pipeline();
+  void create_texture();
 
-    NSApplication* nsapp_ = nullptr;
-    SpargelApplicationDelegate* nsapp_delegate_ = nullptr;
-    NSWindow* ns_window_ = nullptr;
-    SpargelViewController* view_controller_ = nullptr;
-    MTKView* view_ = nullptr;
-    gpu::ContextMetal* gpu_ctx_ = nullptr;
-    id<MTLRenderPipelineState> render_pipeline_ = nullptr;
-    id<MTLTexture> texture_ = nullptr;
-    GrowingBuffer vertex_buffer_;
-    GrowingBuffer index_buffer_;
-    RenderDelegate* delegate_ = nullptr;
+  NSApplication* nsapp_ = nullptr;
+  SpargelApplicationDelegate* nsapp_delegate_ = nullptr;
+  NSWindow* ns_window_ = nullptr;
+  SpargelViewController* view_controller_ = nullptr;
+  MTKView* view_ = nullptr;
+  gpu::ContextMetal* gpu_ctx_ = nullptr;
+  id<MTLRenderPipelineState> render_pipeline_ = nullptr;
+  id<MTLTexture> texture_ = nullptr;
+  GrowingBuffer vertex_buffer_;
+  GrowingBuffer index_buffer_;
+  RenderDelegate* delegate_ = nullptr;
 };
+
 }  // namespace spargel::ui

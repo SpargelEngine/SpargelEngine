@@ -5,6 +5,7 @@
 #include "spargel/runtime/math/vecmath.h"
 
 namespace spargel::ui {
+
 // begin a new frame
 // usually called first in RenderDelegate::render()
 void begin_frame();
@@ -15,4 +16,5 @@ void stroke_line(math::Vec2f p1, math::Vec2f p2, float thickness, uint32_t c);
 
 void begin_window(char const* name);
 void end_window();
+
 }  // namespace spargel::ui
