@@ -1,0 +1,25 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "apple",
+    hdrs = [
+        "bridge_cast.h",
+        "retain_ptr.h",
+    ],
+    deps = [
+        "//spargel/runtime/base",
+    ],
+    visibility = ["//spargel/runtime:__subpackages__"],
+)
+
+cc_test(
+    name = "apple_tests",
+    srcs = [
+        "retain_ptr_tests.cpp",
+    ],
+    deps = [
+        ":apple",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
