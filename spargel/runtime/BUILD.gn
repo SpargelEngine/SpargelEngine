@@ -1,0 +1,12 @@
+source_set("runtime") {
+    public = ["init.h"]
+    sources = ["init.cpp"]
+    deps = [
+        "//spargel/runtime/apple",
+        "//spargel/runtime/base",
+        "//spargel/runtime/gpu",
+        "//spargel/runtime/math",
+        "//spargel/runtime/text",
+        "//spargel/runtime/ui",
+    ]
+}

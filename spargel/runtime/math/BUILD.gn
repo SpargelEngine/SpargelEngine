@@ -1,0 +1,3 @@
+source_set("math") {
+    public = ["vecmath.h"]
+}

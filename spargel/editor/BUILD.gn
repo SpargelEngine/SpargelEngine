@@ -1,0 +1,4 @@
+executable("editor") {
+  sources = ["main.cpp"]
+  deps = ["//spargel/runtime"]
+}

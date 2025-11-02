@@ -1,0 +1,61 @@
+import("//gn/config/sysroot.gni")
+import("//gn/config/local.gni")
+
+config("basics") {
+    cflags = []
+    cflags_cc = []
+    cflags_objcc = []
+    ldflags = []
+    include_dirs = []
+    libs = []
+    lib_dirs = []
+
+    cflags += ["-fcolor-diagnostics"]
+    ldflags += [
+        "-fuse-ld=lld",
+        "-Wl,--color-diagnostics",
+    ]
+
+    include_dirs = [
+        "//",
+        "$root_gen_dir",
+    ]
+
+    cflags += ["-O0"]
+
+    cflags += ["-std=c11"]
+    cflags_cc += ["-std=c++20"]
+    cflags_objcc += ["-std=c++20"]
+
+    cflags_cc += ["-fno-exceptions"]
+    cflags_cc += ["-fno-rtti"]
+
+    if (is_macos) {
+        sysroot_flags = [
+            "-isysroot",
+            rebase_path(sysroot, root_build_dir),
+        ]
+        cflags += sysroot_flags
+        ldflags += sysroot_flags
+    }
+}
+
+config("warnings") {
+    cflags = [
+        "-pedantic-errors",
+        "-Wall",
+        "-Wextra",
+        "-Wconversion",
+        "-Werror",
+    ]
+}
+
+config("default_optimize") {
+    if (!is_debug) {
+        cflags = ["-O2"]
+    }
+}
+
+config("local_overrides") {
+    ldflags = local_override_ldflags
+}

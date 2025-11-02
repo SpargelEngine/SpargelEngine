@@ -1,0 +1,42 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "objc_library")
+load("@rules_swift//swift:swift_binary.bzl", "swift_binary")
+
+objc_library(
+    name = "audio_lib",
+    srcs = [
+        "audio.mm",
+    ],
+    sdk_frameworks = [
+        "AVFAudio",
+    ],
+)
+
+cc_binary(
+    name = "audio",
+    srcs = [],
+    deps = [":audio_lib"],
+)
+
+swift_binary(
+    name = "list_fonts",
+    srcs = ["list_fonts.swift"],
+    copts = [
+        "-Xfrontend",
+        "-enable-experimental-feature",
+        "-Xfrontend",
+        "Extern",
+    ],
+)
+
+objc_library(
+    name = "spi_lib",
+    srcs = ["spi.cpp"],
+    sdk_frameworks = [
+        "CoreText",
+    ],
+)
+
+cc_binary(
+    name = "spi",
+    deps = [":spi_lib"],
+)
