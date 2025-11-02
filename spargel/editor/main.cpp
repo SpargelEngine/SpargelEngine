@@ -1,6 +1,5 @@
 #include <format>
 
-#include "spargel/runtime/base/logging.h"
 #include "spargel/runtime/init.h"
 #include "spargel/runtime/ui/commands.h"
 #include "spargel/runtime/ui/context.h"

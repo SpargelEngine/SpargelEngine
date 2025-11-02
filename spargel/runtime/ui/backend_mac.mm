@@ -262,8 +262,8 @@ float4 fragment_main(
                        min_filter::linear,
                        mag_filter::linear,
                        mip_filter::linear);
-    float4 tex_color = tex.sample(linear_sampler, in.uv);
-    return in.color * tex_color.a;
+    float alpha = tex.sample(linear_sampler, in.uv).a;
+    return in.color * alpha;
 }
     )METAL";
 }  // namespace
@@ -297,10 +297,21 @@ void BackendMac::create_pipeline() {
     vtx_desc.layouts[1].stride = 24;
 
     auto ppl_desc = [[MTLRenderPipelineDescriptor alloc] init];
-    ppl_desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
     ppl_desc.vertexFunction = vertex_shader_;
     ppl_desc.fragmentFunction = fragment_shader_;
     ppl_desc.vertexDescriptor = vtx_desc;
+    ppl_desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
+    ppl_desc.colorAttachments[0].blendingEnabled = true;
+    ppl_desc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+    ppl_desc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+    ppl_desc.colorAttachments[0].sourceRGBBlendFactor =
+        MTLBlendFactorSourceAlpha;
+    ppl_desc.colorAttachments[0].sourceAlphaBlendFactor =
+        MTLBlendFactorSourceAlpha;
+    ppl_desc.colorAttachments[0].destinationRGBBlendFactor =
+        MTLBlendFactorOneMinusSourceAlpha;
+    ppl_desc.colorAttachments[0].destinationAlphaBlendFactor =
+        MTLBlendFactorOneMinusSourceAlpha;
 
     render_pipeline_ = [device newRenderPipelineStateWithDescriptor:ppl_desc
                                                               error:&error];
