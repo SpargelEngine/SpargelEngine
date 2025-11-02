@@ -39,6 +39,7 @@ struct InputState {
   bool mouse_released = false;
 
   void end_frame() { mouse_released = false; }
+  void dump();
 };
 
 struct GlyphCacheKey {

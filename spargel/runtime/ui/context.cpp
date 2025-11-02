@@ -39,7 +39,7 @@ TexturePart Context::prepare_glyph(uint32_t glyph, text::Font* font,
   GlyphCacheKey key{glyph, font};
   auto find_result = glyph_cache_.find(key);
   if (find_result != glyph_cache_.end()) {
-      return find_result->second;
+    return find_result->second;
   }
 
   auto bitmap = font->rasterize_glyph(glyph, 2.0, subpixel);
@@ -58,6 +58,11 @@ TexturePart Context::prepare_glyph(uint32_t glyph, text::Font* font,
 
   glyph_cache_.emplace(key, handle);
   return handle;
+}
+
+void InputState::dump() {
+  LOG_INFO("input state: %.3f %.3f down:%d released:%d", mouse_position.x,
+           mouse_position.y, mouse_down, mouse_released);
 }
 
 }  // namespace spargel::ui

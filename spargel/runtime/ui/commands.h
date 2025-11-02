@@ -16,9 +16,13 @@ void fill_rect(math::Vec2f orig, math::Vec2f size, uint32_t c);
 void stroke_line(math::Vec2f p1, math::Vec2f p2, float thickness, uint32_t c);
 
 bool button(math::Vec2f orig, math::Vec2f size, uint32_t c);
-bool label_button(char const* text, math::Vec2f orig, math::Vec2f size, uint32_t c);
+bool label_button(char const* text, math::Vec2f orig, math::Vec2f size,
+                  uint32_t c);
 
 void label(char const* text, math::Vec2f orig, uint32_t c);
+
+void slide(float* value, char const* text, math::Vec2f orig, math::Vec2f size,
+           uint32_t c);
 
 void begin_window(char const* name);
 void end_window();

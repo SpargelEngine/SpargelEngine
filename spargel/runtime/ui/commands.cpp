@@ -85,6 +85,31 @@ bool label_button(char const* text, math::Vec2f orig, math::Vec2f size,
   return clicked;
 }
 
+void slide(float* value, char const* text, math::Vec2f orig, math::Vec2f size,
+           uint32_t c) {
+  auto& ctx = Context::get();
+  auto const& state = ctx.input_state();
+  if (detail::in_rect(state.mouse_position, orig, size)) {
+    if (state.mouse_down) {
+      *value = (state.mouse_position.x - orig.x) / size.x;
+      c = detail::lighten_color(c, 0.1f);
+    } else {
+      c = detail::lighten_color(c, 0.05f);
+    }
+  }
+  fill_rect(orig, {size.x * (*value), size.y}, c);
+  fill_rect({orig.x + size.x * (*value), orig.y},
+            {size.x - size.x * (*value), size.y},
+            detail::lighten_color(c, 0.1f));
+  auto [width, ascent, descent] = cmdlist().measure_text(text);
+  label(text,
+        {
+            orig.x + size.x / 2.0f - width / 2.0f,
+            orig.y + size.y / 2.0f + ascent / 2.0f + descent / 2.0f,
+        },
+        0xFFFFFFFF);
+}
+
 void label(char const* text, math::Vec2f orig, uint32_t c) {
   cmdlist().fill_text(text, orig, c);
 }

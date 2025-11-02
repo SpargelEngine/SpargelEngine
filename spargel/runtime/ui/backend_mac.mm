@@ -73,6 +73,13 @@
   auto height = view_.bounds.size.height;
   state.mouse_position.y = float(height - loc.y);
 }
+- (void)mouseDragged:(NSEvent*)event {
+  auto loc = [event locationInWindow];
+  auto& state = spargel_context_->input_state();
+  state.mouse_position.x = float(loc.x);
+  auto height = view_.bounds.size.height;
+  state.mouse_position.y = float(height - loc.y);
+}
 // override: MTKViewDelegate
 - (void)drawInMTKView:(MTKView*)view {
   CHECK(spargel_backend_);

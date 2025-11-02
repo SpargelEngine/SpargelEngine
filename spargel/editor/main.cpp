@@ -28,12 +28,17 @@ public:
     }
 
     std::string text = std::format("current count: {}", count_);
-
     ui::label(text.data(), {100, 300}, 0xFF0000FF);
+
+    text = std::format("value: {:.2f}", value_);
+    ui::slide(&value_, text.data(), {100, 400}, {80, 18}, 0xFFFF0000);
+
+    // ui::Context::get().input_state().dump();
   }
 
 private:
   int count_ = 0;
+  float value_ = 0.7f;
 };
 
 }  // namespace
