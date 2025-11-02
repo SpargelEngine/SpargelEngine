@@ -58,16 +58,31 @@ bool button(math::Vec2f orig, math::Vec2f size, uint32_t c) {
   uint32_t real_color = c;
   bool clicked = false;
   if (detail::in_rect(state.mouse_position, orig, size)) {
+    if (state.mouse_released) {
+      clicked = true;
+    }
     if (state.mouse_down) {
       // the button is clicked
       real_color = detail::lighten_color(c, 0.8f);
-      clicked = true;
     } else {
       // the button is hovered
       real_color = detail::lighten_color(c, 0.2f);
     }
   }
   fill_rect(orig, size, real_color);
+  return clicked;
+}
+
+bool label_button(char const* text, math::Vec2f orig, math::Vec2f size,
+                  uint32_t c) {
+  auto clicked = button(orig, size, c);
+  auto [width, ascent, descent] = cmdlist().measure_text(text);
+  label(text,
+        {
+            orig.x + size.x / 2.0f - width / 2.0f,
+            orig.y + size.y / 2.0f + ascent / 2.0f + descent / 2.0f,
+        },
+        0xFFFFFFFF);
   return clicked;
 }
 

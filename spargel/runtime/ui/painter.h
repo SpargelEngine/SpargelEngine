@@ -15,6 +15,12 @@ struct DrawVertex {
 };
 static_assert(sizeof(DrawVertex) == 24);
 
+struct MeasureResult {
+  float width;
+  float ascent;
+  float descent;
+};
+
 class CommandList {
 public:
   static constexpr math::Vec2f WHITE_PIXEL = {0.5f / 256, 0.5f / 256};
@@ -55,6 +61,8 @@ public:
   }
 
   void fill_text(char const* text, math::Vec2f orig, uint32_t c);
+  // hacky
+  MeasureResult measure_text(char const* text);
   void sample_texture(math::Vec2f orig, math::Vec2f size, math::Vec2f uv_min,
                       math::Vec2f uv_max, uint32_t c);
 

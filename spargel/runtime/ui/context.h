@@ -36,6 +36,9 @@ public:
 struct InputState {
   math::Vec2f mouse_position;
   bool mouse_down = false;
+  bool mouse_released = false;
+
+  void end_frame() { mouse_released = false; }
 };
 
 struct GlyphCacheKey {

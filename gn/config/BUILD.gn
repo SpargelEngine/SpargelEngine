@@ -4,6 +4,7 @@ import("//gn/config/local.gni")
 config("basics") {
     cflags = []
     cflags_cc = []
+    cflags_objc = []
     cflags_objcc = []
     ldflags = []
     include_dirs = []
@@ -38,6 +39,8 @@ config("basics") {
         cflags += sysroot_flags
         ldflags += sysroot_flags
     }
+    cflags_objc += ["-fobjc-arc"]
+    cflags_objcc += ["-fobjc-arc"]
 }
 
 config("warnings") {

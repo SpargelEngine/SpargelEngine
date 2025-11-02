@@ -1,3 +1,5 @@
+#include <format>
+
 #include "spargel/runtime/base/logging.h"
 #include "spargel/runtime/init.h"
 #include "spargel/runtime/ui/commands.h"
@@ -19,12 +21,20 @@ public:
       ui::stroke_line({0, 10.0f * i}, {500, 10.0f * i}, 1.0, 0xFFCCCCCC);
     }
 
-    if (ui::button({200, 200}, {40, 20}, 0xFF0000FF)) {
-      LOG_INFO("button clicked");
+    if (ui::label_button("inc", {200, 200}, {40, 20}, 0xFF0000FF)) {
+      count_++;
+    }
+    if (ui::label_button("dec", {260, 200}, {40, 20}, 0xFF00FF00)) {
+      count_--;
     }
 
-    ui::label("hello,world!", {100, 300}, 0xFF0000FF);
+    std::string text = std::format("current count: {}", count_);
+
+    ui::label(text.data(), {100, 300}, 0xFF0000FF);
   }
+
+private:
+  int count_ = 0;
 };
 
 }  // namespace

@@ -64,6 +64,7 @@
 - (void)mouseUp:(NSEvent*)event {
   auto& state = spargel_context_->input_state();
   state.mouse_down = false;
+  state.mouse_released = true;
 }
 - (void)mouseMoved:(NSEvent*)event {
   auto loc = [event locationInWindow];
@@ -168,6 +169,10 @@ void BackendMac::render() {
   auto drawable = view_.currentDrawable;
   [command_buffer presentDrawable:drawable];
   [command_buffer commit];
+
+  // TODO: this is hacky
+  auto& ctx = Context::get();
+  ctx.input_state().end_frame();
 }
 void BackendMac::init_app() {
   nsapp_ = [NSApplication sharedApplication];

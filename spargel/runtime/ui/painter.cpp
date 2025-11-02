@@ -38,6 +38,12 @@ void CommandList::fill_text(char const* text, math::Vec2f orig, uint32_t c) {
   }
 }
 
+MeasureResult CommandList::measure_text(char const* text) {
+  auto& ctx = Context::get();
+  auto shaped_line = ctx.layout_text(text);
+  return {shaped_line.width, shaped_line.ascent, shaped_line.descent};
+}
+
 void CommandList::sample_texture(math::Vec2f orig, math::Vec2f size,
                                  math::Vec2f uv_min, math::Vec2f uv_max,
                                  uint32_t c) {
