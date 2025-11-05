@@ -1,0 +1,76 @@
+import("//gn/config/sysroot.gni")
+import("//gn/config/local.gni")
+
+config("basics") {
+    cflags = []
+    cflags_c = []
+    cflags_cc = []
+    cflags_objc = []
+    cflags_objcc = []
+    ldflags = []
+    include_dirs = []
+    libs = []
+    lib_dirs = []
+
+    cflags += ["-fcolor-diagnostics"]
+    ldflags += [
+        "-fuse-ld=lld",
+        "-Wl,--color-diagnostics",
+    ]
+
+    include_dirs = [
+        "//",
+        "$root_gen_dir",
+    ]
+
+    if (is_macos) {
+        sysroot_flags = [
+            "-isysroot",
+            rebase_path(sysroot, root_build_dir),
+        ]
+        cflags += sysroot_flags
+        ldflags += sysroot_flags
+    }
+}
+
+config("no_rtti") {
+  cflags_cc = ["-fno-rtti"]
+}
+
+config("no_exceptions") {
+  cflags_cc = ["-fno-exceptions"]
+}
+
+config("default_standard") {
+  cflags_c = ["-std=c11"]
+  cflags_cc = ["-std=c++20"]
+  cflags_objcc = ["-std=c++20"]
+}
+
+config("objc_arc") {
+  cflags_objc = ["-fobjc-arc"]
+  cflags_objcc = ["-fobjc-arc"]
+}
+
+config("warnings") {
+    cflags = [
+        "-pedantic-errors",
+        "-Wall",
+        "-Wextra",
+        "-Wconversion",
+        "-Werror",
+    ]
+}
+
+config("default_optimization") {
+  cflags = []
+  if (!is_debug) {
+    cflags += ["-O2"]
+  } else {
+    cflags += ["-O0"]
+  }
+}
+
+config("local_overrides") {
+    ldflags = local_override_ldflags
+}

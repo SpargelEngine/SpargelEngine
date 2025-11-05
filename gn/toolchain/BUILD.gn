@@ -1,0 +1,79 @@
+import("//gn/config/clang.gni")
+
+toolchain("macos_clang") {
+    prefix = rebase_path("$clang_root/bin/", root_build_dir)
+    cc = "${prefix}clang"
+    cxx = "${prefix}clang++"
+    ld = cxx
+    ar = "${prefix}llvm-ar"
+
+    object_subdir = "{{target_out_dir}}/{{label_name}}"
+
+    tool("cc") {
+        depfile = "{{output}}.d"
+        depsformat = "gcc"
+        outputs = [
+            "$object_subdir/{{source_name_part}}.o"
+        ]
+        command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
+        description = "CC {{output}}"
+    }
+    tool("cxx") {
+        depfile = "{{output}}.d"
+        depsformat = "gcc"
+        outputs = [
+            "$object_subdir/{{source_name_part}}.o"
+        ]
+        command = "$cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+        description = "CXX {{output}}"
+    }
+    tool("objc") {
+        depfile = "{{output}}.d"
+        depsformat = "gcc"
+        outputs = [
+            "$object_subdir/{{source_name_part}}.o"
+        ]
+        command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{framework_dirs}} {{cflags}} {{cflags_objc}} -c {{source}} -o {{output}}"
+        description = "OBJC {{output}}"
+    }
+    tool("objcxx") {
+        depfile = "{{output}}.d"
+        depsformat = "gcc"
+        outputs = [
+            "$object_subdir/{{source_name_part}}.o"
+        ]
+        command = "$cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{framework_dirs}} {{cflags}} {{cflags_objcc}} -c {{source}} -o {{output}}"
+        description = "OBJCXX {{output}}"
+    }
+    tool("alink") {
+        rspfile = "{{output}}.rsp"
+        rspfile_content = "{{inputs}}"
+        default_output_dir = "{{target_out_dir}}"
+        default_output_extension = ".a"
+        outputs = [
+            "{{output_dir}}/{{target_output_name}}{{output_extension}}",
+        ]
+        command = "rm -f {{output}} && $ar -r -c -s -D {{arflags}} {{output}} @$rspfile"
+        description = "AR {{output}}"
+    }
+    tool("solink") {
+        outfile = "{{output_dir}}/{{target_output_name}}{{output_extension}}"
+        rspfile = "$outfile.rsp"
+        rspfile_content = "{{inputs}} {{frameworks}} {{swiftmodules}} {{solibs}} {{libs}}"
+        default_output_dir = "{{root_out_dir}}"
+        default_output_extension = ".dylib"
+        outputs = [ outfile ]
+        command = "$ld -shared {{ldflags}} -o $outfile @$rspfile"
+        description = "SOLINK $outfile"
+    }
+    tool("link") {
+        outfile = "{{output_dir}}/{{target_output_name}}{{output_extension}}"
+        rspfile = "$outfile.rsp"
+        # rspfile_content = "-Wl,--start-group {{inputs}} -Wl,--end-group {{frameworks}} {{swiftmodules}} {{solibs}} {{libs}}"
+        rspfile_content = "{{inputs}} {{frameworks}} {{swiftmodules}} {{solibs}} {{libs}}"
+        default_output_dir = "{{root_out_dir}}"
+        outputs = [ outfile ]
+        command = "$ld {{ldflags}} -o $outfile @$rspfile"
+        description = "LINK $outfile"
+    }
+}

@@ -1,0 +1,12 @@
+BasedOnStyle: Google
+
+ColumnLimit: 80
+
+Standard: c++20
+
+AccessModifierOffset: -2
+
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+IndentCaseLabels: false

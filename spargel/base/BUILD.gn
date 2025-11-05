@@ -1,0 +1,10 @@
+source_set("base") {
+    public = [
+        "check.h",
+        "logging.h",
+        "unused.h",
+    ]
+    sources = [
+        "logging.cpp",
+    ]
+}

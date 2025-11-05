@@ -1,0 +1,8 @@
+executable("editor") {
+  sources = ["main.cpp"]
+  deps = [
+    "//spargel:runtime",
+    "//third_party/lua",
+    "//third_party/sol2",
+  ]
+}

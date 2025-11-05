@@ -1,0 +1,20 @@
+source_set("ui") {
+    public = [
+        "commands.h",
+        "context.h",
+        "painter.h",
+    ]
+    sources = [
+        "backend_mac.h",
+        "backend_mac.mm",
+        "commands.cpp",
+        "context.cpp",
+        "packer.h",
+        "packer.cpp",
+        "painter.cpp",
+    ]
+    frameworks = [
+        "AppKit.framework",
+        "MetalKit.framework",
+    ]
+}

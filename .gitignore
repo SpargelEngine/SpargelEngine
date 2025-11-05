@@ -1,0 +1,21 @@
+# editors
+*.swp
+.idea
+.vs
+.vscode
+.zed
+
+# clangd
+.cache
+compile_commands.json
+
+# bazel
+/bazel-*
+/user.bazelrc
+/external/
+
+# gn
+/out
+
+# Mac
+.DS_Store

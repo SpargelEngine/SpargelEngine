@@ -1,0 +1,21 @@
+source_set("text") {
+    public = [
+        "font.h",
+        "font_manager.h",
+        "shaping.h",
+    ]
+    sources = [
+        "font.cpp",
+        "font_manager.cpp",
+
+        "font_mac.h",
+        "font_mac.cpp",
+        "font_manager_mac.h",
+        "font_manager_mac.cpp",
+        "shaping_mac.cpp",
+    ]
+    frameworks = [
+        "CoreGraphics.framework",
+        "CoreText.framework",
+    ]
+}

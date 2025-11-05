@@ -1,0 +1,5 @@
+group("gn_all") {
+    deps = [
+        "//spargel/editor",
+    ]
+}

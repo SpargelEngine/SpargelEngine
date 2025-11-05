@@ -1,0 +1,6 @@
+config("sol2_config") {
+  include_dirs = ["include"]
+}
+source_set("sol2") {
+  public_configs = [":sol2_config"]
+}
