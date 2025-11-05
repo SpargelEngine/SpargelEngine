@@ -12,6 +12,34 @@
 }
 @end
 
+// experimental ----------------------------------------------------------------
+
+@interface OverlayView : NSView
+@end
+
+@implementation OverlayView {
+  NSTextField* label_;
+}
+- (nonnull instancetype)init {
+  self = [super init];
+  if (self) {
+    label_ = [NSTextField labelWithString:@"test label"];
+    [self addSubview:label_];
+    self.wantsLayer = true;
+  }
+  return self;
+}
+- (void)drawRect:(NSRect)dirtyRect {
+  [@"overlay_view" drawAtPoint:CGPointMake(100, 100)
+                withAttributes:@{
+                  NSForegroundColorAttributeName : NSColor.redColor,
+                  NSFontAttributeName : [NSFont systemFontOfSize:20],
+                }];
+}
+@end
+
+// -----------------------------------------------------------------------------
+
 @implementation SpargelViewController {
   spargel::ui::Context* spargel_context_;
   spargel::ui::BackendMac* spargel_backend_;
@@ -39,6 +67,9 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
   spargel_backend_->set_mtk_view(view_);
+
+  //
+  [view_ addSubview:[[OverlayView alloc] init]];
 }
 - (void)viewDidAppear {
   [self.view.window makeFirstResponder:self];
@@ -207,6 +238,14 @@ void BackendMac::init_window() {
   // > Setting contentViewController causes the window to resize based on the
   // > current size of the contentViewController.
   ns_window_.contentViewController = view_controller_;
+
+  // center the window; it includes the dock area
+  // NOTE: [-NSWindow center] places the window at a weird place
+  auto frame = ns_window_.frame;
+  frame.origin.x = (screen.frame.size.width - frame.size.width) / 2.0;
+  frame.origin.y = (screen.frame.size.height - frame.size.height) / 2.0;
+  [ns_window_ setFrame:frame display:true];
+
   [ns_window_ makeKeyAndOrderFront:nullptr];
 }
 void BackendMac::init_gpu() {

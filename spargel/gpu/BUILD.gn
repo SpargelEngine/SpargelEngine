@@ -1,10 +1,21 @@
 source_set("gpu") {
-    public = ["context.h"]
-    sources = [
-        "context_metal.h",
-        "context_metal.mm",
-    ]
-    frameworks = [
-        "Metal.framework",
-    ]
+  public = ["context.h"]
+  sources = [
+    "context_metal.h",
+    "context_metal.mm",
+  ]
+
+  public += [
+    "device.h",
+  ]
+  sources += [
+    "device.cpp",
+  ]
+  sources += [
+    "device_mtl.h",
+    "device_mtl.mm",
+  ]
+  frameworks = [
+    "Metal.framework",
+  ]
 }

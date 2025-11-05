@@ -1,0 +1,8 @@
+[package]
+name = "core_foundation"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[dependencies]
+ffi_utils.workspace = true

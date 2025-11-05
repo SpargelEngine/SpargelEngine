@@ -1,0 +1,10 @@
+source_set("spsl") {
+  sources = [
+    "spsl.cpp",
+  ]
+}
+
+executable("spslc") {
+  sources = ["spslc.cpp"]
+  deps = [":spsl"]
+}

@@ -1,0 +1,18 @@
+// TODO: Do we support dependent type?
+//   input1: @id(1) @device &list(uint, length)
+
+def SumArrayProps = struct {
+  @id(0) length: uint,
+  @id(1) input1: @device *const uint,
+  @id(2) input2: @device *const uint,
+  @id(3) output: @device *mut uint,
+}
+
+// sum of two array
+@compute
+def sum_array(@thread_id tid: uint, @table(0) props: SumArrayProps) {
+  if (tid >= props.length) {
+    return;
+  }
+  props.output[tid] = props.input1[tid] + props.input2[tid];
+}

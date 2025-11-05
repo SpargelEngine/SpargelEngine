@@ -81,4 +81,10 @@ private:
   std::vector<uint32_t> indices_;
 };
 
+class Painter {
+public:
+  virtual ~Painter() = default;
+  virtual void paint(CommandList const& cmdlist) = 0;
+};
+
 }  // namespace spargel::ui

@@ -1,10 +1,15 @@
 source_set("base") {
-    public = [
-        "check.h",
-        "logging.h",
-        "unused.h",
-    ]
-    sources = [
-        "logging.cpp",
-    ]
+  public = [
+    "check.h",
+    "logging.h",
+    "unused.h",
+  ]
+  sources = [
+    "envvar.cpp",
+    "logging.cpp",
+  ]
+
+  sources += [
+    "terminal_posix.cpp",
+  ]
 }

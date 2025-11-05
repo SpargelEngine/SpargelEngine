@@ -2,43 +2,21 @@ import("//gn/config/sysroot.gni")
 import("//gn/config/local.gni")
 
 config("basics") {
-    cflags = []
-    cflags_c = []
-    cflags_cc = []
-    cflags_objc = []
-    cflags_objcc = []
-    ldflags = []
-    include_dirs = []
-    libs = []
-    lib_dirs = []
+  cflags = ["-fcolor-diagnostics"]
+  ldflags = [
+    "-fuse-ld=lld",
+    "-Wl,--color-diagnostics",
+  ]
 
-    cflags += ["-fcolor-diagnostics"]
-    ldflags += [
-        "-fuse-ld=lld",
-        "-Wl,--color-diagnostics",
+  # TODO: split to sysroot config
+  if (is_macos) {
+    sysroot_flags = [
+      "-isysroot",
+      rebase_path(sysroot, root_build_dir),
     ]
-
-    include_dirs = [
-        "//",
-        "$root_gen_dir",
-    ]
-
-    if (is_macos) {
-        sysroot_flags = [
-            "-isysroot",
-            rebase_path(sysroot, root_build_dir),
-        ]
-        cflags += sysroot_flags
-        ldflags += sysroot_flags
-    }
-}
-
-config("no_rtti") {
-  cflags_cc = ["-fno-rtti"]
-}
-
-config("no_exceptions") {
-  cflags_cc = ["-fno-exceptions"]
+    cflags += sysroot_flags
+    ldflags += sysroot_flags
+  }
 }
 
 config("default_standard") {
@@ -47,19 +25,23 @@ config("default_standard") {
   cflags_objcc = ["-std=c++20"]
 }
 
-config("objc_arc") {
-  cflags_objc = ["-fobjc-arc"]
-  cflags_objcc = ["-fobjc-arc"]
+config("default_includes") {
+  include_dirs = [
+    "//",
+    "$root_gen_dir",
+  ]
 }
 
+# these are warnings enabled for spargel code
 config("warnings") {
-    cflags = [
-        "-pedantic-errors",
-        "-Wall",
-        "-Wextra",
-        "-Wconversion",
-        "-Werror",
-    ]
+  cflags = [
+    "-pedantic",
+    "-pedantic-errors",
+    "-Wall",
+    "-Wextra",
+    "-Wconversion",
+    "-Werror",
+  ]
 }
 
 config("default_optimization") {
@@ -70,6 +52,23 @@ config("default_optimization") {
     cflags += ["-O0"]
   }
 }
+
+# language features ------------------------------------------------------------
+
+config("no_rtti") {
+  cflags_cc = ["-fno-rtti"]
+}
+
+config("no_exceptions") {
+  cflags_cc = ["-fno-exceptions"]
+}
+
+config("objc_arc") {
+  cflags_objc = ["-fobjc-arc"]
+  cflags_objcc = ["-fobjc-arc"]
+}
+
+# user specific config ---------------------------------------------------------
 
 config("local_overrides") {
     ldflags = local_override_ldflags

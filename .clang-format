@@ -10,3 +10,7 @@ DerivePointerAlignment: false
 PointerAlignment: Left
 
 IndentCaseLabels: false
+
+InsertBraces: true
+
+IncludeIsMainRegex: "(_(posix|linux|mac|win)?)?$"
