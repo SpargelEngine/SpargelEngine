@@ -1,3 +1,0 @@
-declare_args() {
-  local_override_ldflags = []
-}

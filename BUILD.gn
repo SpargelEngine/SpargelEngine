@@ -1,6 +1,0 @@
-group("gn_all") {
-  deps = [
-    "//spargel/editor",
-    "//spargel:runtime",
-  ]
-}

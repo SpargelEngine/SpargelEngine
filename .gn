@@ -1,3 +1,0 @@
-buildconfig = "//gn/config/BUILDCONFIG.gn"
-script_executable = "python3"
-export_compile_commands = [ "//*" ]
