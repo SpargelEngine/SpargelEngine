@@ -5,3 +5,6 @@ authors.workspace = true
 edition.workspace = true
 
 [dependencies]
+tokio.workspace = true
+wgpu.workspace = true
+winit.workspace = true

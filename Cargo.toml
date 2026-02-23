@@ -11,11 +11,9 @@ authors = ["Tianjiao Nie"]
 edition = "2024"
 
 [workspace.dependencies]
-bytemuck = "1.25.0"
-egui = "0.33.3"
-eframe = {
-    version = "0.33.3",
-    features = [
-        "wgpu",
-    ],
-}
+bytemuck = "1"
+egui = "0.33"
+eframe = { version = "0.33", features = ["wgpu"] }
+tokio = { version = "1", features = ["rt"] }
+wgpu = "28"
+winit = "0.30"
