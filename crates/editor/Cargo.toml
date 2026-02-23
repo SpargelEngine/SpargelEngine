@@ -5,3 +5,5 @@ authors.workspace = true
 edition.workspace = true
 
 [dependencies]
+bytemuck.workspace = true
+eframe.workspace = true
